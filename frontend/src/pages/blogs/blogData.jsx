@@ -484,5 +484,181 @@ export const blogPosts = [
         author: "by Techland",
         readTime: "12 min read",
         category: ["Digital Strategy", "Marketing"]
+    },
+    {
+        id: 6,
+        title: "AI in Business: What Actually Works in 2026, and What Is Still Hype",
+        imageUrl: img5,
+        fullDescription: "Every vendor now has an AI feature and every board wants an AI strategy. Underneath the noise, a small number of applications are quietly paying for themselves — and a larger number are burning budget. Here is how we separate the two for our clients in Hyderabad and abroad.",
+        sections: [
+            {
+                title: "1. Start With the Bottleneck, Not the Technology",
+                content: "The projects that succeed begin with a process that is measurably slow or expensive — not with a decision to 'use AI'.",
+                additionalContent: "Before writing a line of code we ask what the task costs today in hours, errors or lost customers. If nobody can answer that, the project has no benchmark to be judged against and it will quietly stall six months in.",
+                points: [
+                    "Where does work sit in a queue waiting for a human?",
+                    "Which decisions are repetitive and rule-driven?",
+                    "What data already exists to learn from?"
+                ]
+            },
+            {
+                title: "2. What Is Genuinely Working",
+                content: "Across the projects we have shipped, four categories consistently return their investment:",
+                points: [
+                    "Document extraction — invoices, KYC forms and delivery notes read in seconds instead of minutes",
+                    "Customer support triage — routing and drafting replies, with a human approving before send",
+                    "Search that understands intent, not just keywords, inside large product catalogues",
+                    "Forecasting demand for inventory-heavy businesses"
+                ],
+                additionalContent: "The pattern is the same in each: narrow scope, plenty of historical data, and a human still holding the final decision."
+            },
+            {
+                title: "3. What Is Still Mostly Hype",
+                content: "Some of the loudest promises remain unreliable in production.",
+                points: [
+                    "Fully autonomous agents running an unsupervised business process",
+                    "Chatbots given free rein over pricing, refunds or legal commitments",
+                    "Replacing domain experts rather than speeding them up"
+                ],
+                additionalContent: "These fail not because the models are weak, but because the cost of a confident wrong answer is far higher than the saving from removing the human."
+            },
+            {
+                title: "4. The Question Worth Asking First",
+                content: "If a model is right 90% of the time, what does the other 10% cost you?",
+                additionalContent: "For a product recommendation, very little. For a loan approval or a medical triage, a great deal. That single answer decides whether the human stays in the loop — and it should be settled before any budget is approved."
+            },
+            {
+                title: "5. How We Approach It",
+                content: "We treat an AI feature the same way as any other engineering work: scoped, measured and reviewed.",
+                points: [
+                    "A two-week proof against your real data, not a demo dataset",
+                    "A baseline measured before launch so the gain is provable",
+                    "A fallback path for every automated decision",
+                    "Costs modelled per request, because inference is not free"
+                ],
+                additionalContent: (<>If you are weighing up where AI fits in your business, our <Link to="/services/custom-software-development" className="text-blue">custom software team</Link> will tell you honestly which parts are worth building and which are not.</>)
+            }
+        ],
+        date: "January 14, 2026",
+        author: "by Techland",
+        readTime: "9 min read",
+        category: ["Artificial Intelligence", "Business Strategy"]
+    },
+    {
+        id: 7,
+        title: "Building AI Into Your Mobile App Without Wrecking Battery, Privacy or Cost",
+        imageUrl: img1,
+        fullDescription: "Adding an AI feature to a mobile app is easy to demo and hard to ship. Three things decide whether it survives contact with real users: where the model runs, what leaves the device, and what each request costs you. Here is how we make those calls.",
+        sections: [
+            {
+                title: "1. On-Device or in the Cloud?",
+                content: "This is the first decision and it shapes everything after it.",
+                points: [
+                    "On-device — instant, works offline, nothing leaves the phone, but limited by the handset",
+                    "Cloud — far more capable, but adds latency, needs a connection and bills per request"
+                ],
+                additionalContent: "In practice most apps end up hybrid: a small model on the device for the common case, escalating to the cloud when the task genuinely needs it."
+            },
+            {
+                title: "2. Battery and Thermals Are a Feature",
+                content: "A model that drains 8% of a battery in a minute will be uninstalled, however clever it is.",
+                additionalContent: "We profile on mid-range Android hardware rather than flagships, because that is what most Indian users actually carry. Sustained inference also throttles the CPU, which slows down everything else in the app.",
+                points: [
+                    "Batch requests instead of firing on every keystroke",
+                    "Cache aggressively — the same question often comes twice",
+                    "Quantise models so they fit comfortably in memory"
+                ]
+            },
+            {
+                title: "3. Privacy Is Not a Checkbox",
+                content: "If user content leaves the device, you now have a data protection question to answer.",
+                points: [
+                    "Say plainly what is sent, and give a way to opt out",
+                    "Strip identifiers before anything is transmitted",
+                    "Do not log prompts containing personal data",
+                    "Check whether your provider trains on your submissions"
+                ],
+                additionalContent: "India's DPDP Act makes this a legal matter, not just good manners."
+            },
+            {
+                title: "4. Cost Discipline",
+                content: "Cloud inference is billed per token, and a popular feature can become the largest line on your bill.",
+                additionalContent: "We model cost per active user before launch, cap spend per account, and set a hard budget alert. A feature nobody has priced is a feature waiting to surprise you."
+            },
+            {
+                title: "5. Design for Being Wrong",
+                content: "The interface has to assume the model will sometimes be confidently incorrect.",
+                points: [
+                    "Show the source or reasoning where it exists",
+                    "Make correcting the output easier than redoing it",
+                    "Never auto-commit an irreversible action",
+                    "Fail back to the manual path rather than a dead end"
+                ],
+                additionalContent: (<>Our <Link to="/services/mobile-app-development" className="text-blue">mobile app team</Link> builds these guardrails in from the first sprint rather than bolting them on after a bad review.</>)
+            }
+        ],
+        date: "February 3, 2026",
+        author: "by Techland",
+        readTime: "10 min read",
+        category: ["Artificial Intelligence", "Mobile Development"]
+    },
+    {
+        id: 8,
+        title: "AI and SEO in 2026: How Search Changed, and What Still Ranks",
+        imageUrl: img2,
+        fullDescription: "AI overviews now answer a large share of queries before anyone clicks a result. That has changed which pages earn traffic — but it has not made SEO obsolete. It has made thin content worthless and genuine expertise more valuable than it has been in years.",
+        sections: [
+            {
+                title: "1. What Actually Changed",
+                content: "Informational queries increasingly end at the summary. Nobody clicks through to learn what a term means.",
+                additionalContent: "What still sends traffic are queries with intent behind them — comparing options, checking prices, finding somebody local, or making a decision. Those are the pages worth investing in.",
+                points: [
+                    "Definition and 'what is' pages: heavy losses",
+                    "Comparison, pricing and local intent: broadly stable",
+                    "Original data and first-hand experience: growing"
+                ]
+            },
+            {
+                title: "2. Why Thin AI Content Backfires",
+                content: "Generating a hundred articles is now trivial, which is exactly why it no longer works.",
+                additionalContent: "Search engines are explicitly rewarding content that demonstrates first-hand experience. A page assembled from what is already indexed adds nothing new, and increasingly ranks accordingly.",
+                points: [
+                    "Say something only you could say — your data, your projects, your numbers",
+                    "Show the working, not just the conclusion",
+                    "Put a real author and a real date on it"
+                ]
+            },
+            {
+                title: "3. Being Cited by the Summary",
+                content: "If an AI overview answers the question, you want to be the source it names.",
+                points: [
+                    "Answer the question directly in the first paragraph",
+                    "Use clear headings that match how people actually ask",
+                    "Mark up your organisation, address and FAQs in structured data",
+                    "Keep facts current — stale pages get dropped from citations"
+                ],
+                additionalContent: "Structured data has quietly gone from a nice-to-have to the main way machines understand who you are."
+            },
+            {
+                title: "4. Local Search Is the Quiet Winner",
+                content: "'Best web development company in Hyderabad' still produces a click, because the searcher intends to hire somebody.",
+                additionalContent: "Local intent resists summarisation — a summary cannot pick a vendor for you. Accurate listings, reviews and location markup matter more now than they did three years ago."
+            },
+            {
+                title: "5. What We Would Do With Your Budget",
+                content: "Fewer pages, better ones.",
+                points: [
+                    "Consolidate thin pages that compete with each other",
+                    "Rebuild the three pages that already convert",
+                    "Publish one piece of genuinely original research",
+                    "Fix structured data and page speed before writing anything new"
+                ],
+                additionalContent: (<>Our <Link to="/services/digital-marketing" className="text-blue">digital marketing team</Link> reports against traffic that converts, not impressions that flatter.</>)
+            }
+        ],
+        date: "March 2, 2026",
+        author: "by Techland",
+        readTime: "11 min read",
+        category: ["Artificial Intelligence", "Digital Marketing"]
     }
 ];

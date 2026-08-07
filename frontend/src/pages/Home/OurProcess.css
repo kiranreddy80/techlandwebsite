@@ -1,0 +1,372 @@
+/* ============================================================
+   OUR PROCESS — the road
+
+   Six stops laid along a winding route. The road draws itself when
+   the section arrives, the stops arrive as the tarmac reaches them,
+   and a marker drives the route on a loop.
+
+   One accent throughout (the brand gradient). No per-step colours,
+   no dark ground, no carousel, no imported webfonts.
+   ============================================================ */
+
+.rd-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 96px 0 100px;
+  background: #ffffff;
+}
+@media (min-width: 1024px) {
+  .rd-section { padding: 124px 0 128px; }
+}
+
+.rd-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(820px 420px at 50% -12%, rgba(22, 49, 152, 0.055), transparent 62%),
+    linear-gradient(180deg, #ffffff 0%, #fafaff 58%, #ffffff 100%);
+}
+
+.rd-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+@media (min-width: 1024px) { .rd-container { padding: 0 32px; } }
+
+/* ---------------------------------------------------------- head */
+.rd-head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.rd-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.45);
+}
+.rd-eyebrow-line {
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #4f46e5);
+}
+
+.rd-title {
+  font-family: "Play", sans-serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 3.4vw + 0.6rem, 3.3rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  color: #0a0a0a;
+  margin: 0;
+  text-wrap: balance;
+}
+.rd-title-hl {
+  font-weight: 700;
+  background: linear-gradient(135deg, #163198 0%, #4f46e5 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.rd-lede {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 16px;
+  line-height: 1.65;
+  color: rgba(10, 10, 10, 0.52);
+  text-wrap: balance;
+}
+
+/* ----------------------------------------------------------- map */
+.rd-map {
+  position: relative;
+  max-width: 1170px;
+  /* Matches the SVG viewBox, so the stop coordinates stay true at any width. */
+  aspect-ratio: 1170 / 360;
+  /* Room above and below for the cards, which sit clear of the tarmac. */
+  margin: 96px auto 104px;
+}
+
+.rd-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Ghost route — shows where the road is heading before it is laid. */
+.rd-ghost { opacity: 0.9; }
+
+/* Tarmac: normalised with pathLength="1" so one unit is the whole route,
+   whatever the curve's real length works out to be. */
+.rd-tarmac {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0.95;
+  transition: stroke-dashoffset 2.4s cubic-bezier(0.32, 0.72, 0.3, 1);
+}
+.rd-section.is-drawn .rd-tarmac { stroke-dashoffset: 0; }
+
+/* Centre line follows the tarmac in, a beat behind it. */
+.rd-dashes {
+  opacity: 0;
+  transition: opacity 0.9s ease 1.5s;
+}
+.rd-section.is-drawn .rd-dashes { opacity: 1; }
+
+/* ---- the marker driving the route ---- */
+.rd-runner {
+  opacity: 0;
+  transition: opacity 0.6s ease 2.3s;
+}
+.rd-section.is-drawn .rd-runner { opacity: 1; }
+
+.rd-runner-halo {
+  animation: rdPulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes rdPulse {
+  0%, 100% { opacity: 0.5; r: 14; }
+  50%      { opacity: 0.15; r: 22; }
+}
+.rd-runner-dot { filter: drop-shadow(0 2px 6px rgba(10, 10, 40, 0.35)); }
+
+/* --------------------------------------------------------- stops */
+.rd-stops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+}
+
+.rd-stop {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  /* Each stop appears as the tarmac reaches it. */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: calc(0.55s + var(--i) * 0.33s);
+}
+.rd-section.is-drawn .rd-stop { opacity: 1; }
+
+/* ---- the pin sitting on the road ---- */
+.rd-pin {
+  position: relative;
+  z-index: 2;
+  width: 60px;
+  height: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  box-shadow: 0 10px 24px -12px rgba(10, 10, 40, 0.45);
+  transform: scale(0.5);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.4s ease,
+              border-color 0.4s ease;
+  transition-delay: calc(0.55s + var(--i) * 0.33s);
+}
+.rd-section.is-drawn .rd-pin { transform: scale(1); }
+
+.rd-pin img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+  /* The icon set is multi-coloured; holding it to one tone keeps the route
+     reading as a single system until you point at a stop. */
+  filter: grayscale(1) opacity(0.6);
+  transition: filter 0.4s ease;
+}
+
+.rd-pin-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  padding: 1px;
+  background: linear-gradient(135deg, #163198, #4f46e5, #7c3aed);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- leg linking pin to card ---- */
+.rd-leg {
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.5), rgba(79, 70, 229, 0.08));
+  transform: translateX(-50%) scaleY(0);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(0.75s + var(--i) * 0.33s);
+}
+.rd-stop.is-below .rd-leg { top: 100%; transform-origin: top; }
+.rd-stop.is-above .rd-leg { bottom: 100%; transform-origin: bottom; }
+.rd-section.is-drawn .rd-leg { transform: translateX(-50%) scaleY(1); }
+
+/* ---- the stop card ---- */
+.rd-card {
+  position: absolute;
+  left: 50%;
+  width: 200px;
+  transform: translateX(-50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rd-stop.is-below .rd-card { top: calc(100% + 26px); }
+.rd-stop.is-above .rd-card { bottom: calc(100% + 26px); }
+
+.rd-num {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: rgba(10, 10, 10, 0.32);
+  transition: color 0.35s ease;
+}
+.rd-stop-title {
+  margin: 0;
+  font-family: "Play", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0a0a0a;
+}
+.rd-stop-desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(10, 10, 10, 0.5);
+}
+
+/* ---- hover ---- */
+.rd-stop:hover { z-index: 5; }
+.rd-stop:hover .rd-pin {
+  transform: scale(1.12);
+  border-color: transparent;
+  box-shadow: 0 18px 36px -14px rgba(79, 70, 229, 0.6);
+}
+.rd-stop:hover .rd-pin-ring { opacity: 1; transform: scale(1); }
+.rd-stop:hover .rd-pin img { filter: none; }
+.rd-stop:hover .rd-num { color: #4f46e5; }
+
+/* ============================================================
+   Narrow screens: the road stands up.
+
+   A winding six-stop route needs real width — squeezed under about
+   900px the curves collapse and the cards collide. Below that the
+   route becomes a vertical rail with the stops down one side.
+   ============================================================ */
+@media (max-width: 899px) {
+  .rd-map {
+    aspect-ratio: auto;
+    margin: 44px auto 0;
+    padding-left: 8px;
+  }
+  .rd-svg { display: none; }
+
+  .rd-stops {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .rd-stop {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    height: auto;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 0 18px;
+    padding: 0 0 30px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i) * 0.1s);
+  }
+  .rd-section.is-drawn .rd-stop { opacity: 1; transform: translateY(0); }
+
+  /* The leg becomes the rail running between stops. */
+  .rd-stop.is-below .rd-leg,
+  .rd-stop.is-above .rd-leg {
+    top: 60px;
+    bottom: auto;
+    left: 30px;
+    width: 2px;
+    height: calc(100% - 60px);
+    transform-origin: top;
+    transform: translateX(-50%) scaleY(1);
+    background: linear-gradient(180deg, rgba(79, 70, 229, 0.45), rgba(79, 70, 229, 0.1));
+  }
+  .rd-stop:last-child .rd-leg { display: none; }
+
+  .rd-section.is-drawn .rd-pin { transform: scale(1); }
+  .rd-stop:hover .rd-pin { transform: scale(1.06); }
+
+  .rd-card {
+    position: static;
+    transform: none;
+    width: auto;
+    text-align: left;
+    padding-top: 6px;
+  }
+  .rd-stop.is-below .rd-card,
+  .rd-stop.is-above .rd-card { top: auto; bottom: auto; }
+  .rd-stop-desc { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-tarmac,
+  .rd-dashes,
+  .rd-runner,
+  .rd-stop,
+  .rd-pin,
+  .rd-pin-ring,
+  .rd-pin img,
+  .rd-leg,
+  .rd-num {
+    transition: none !important;
+  }
+  .rd-tarmac { stroke-dashoffset: 0; }
+  .rd-dashes { opacity: 1; }
+  .rd-stop { opacity: 1; transform: translate(-50%, -50%); }
+  .rd-pin { transform: scale(1); }
+  .rd-leg { transform: translateX(-50%) scaleY(1); }
+  .rd-runner-halo { animation: none !important; }
+  .rd-stop:hover .rd-pin { transform: scale(1); }
+}

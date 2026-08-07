@@ -1,80 +1,57 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./PageTransition.css";
 
+/**
+ * Route transition.
+ *
+ * Wraps the routed page so moving between tabs — Services, About, Contact,
+ * Blog — animates instead of hard-cutting. Two things happen at once:
+ *
+ *  1. a thin progress bar sweeps across the top, the way a real page load
+ *     would signal itself
+ *  2. the outgoing page drops back in Z and fades while the incoming one
+ *     rises toward the viewer
+ *
+ * Driven by the pathname, not by data loading, because the pages are already
+ * client-side — the point is to give the change a beat, not to fake latency.
+ */
 const PageTransition = ({ children }) => {
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [displayLocation, setDisplayLocation] = useState(useLocation());
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const [display, setDisplay] = useState(children);
+  const [phase, setPhase] = useState("in");
+  const lastPath = useRef(pathname);
 
   useEffect(() => {
-    if (location.pathname !== displayLocation.pathname) {
-      // Start transition - fade out current page
-      setIsTransitioning(true);
-
-      // Phase 1: Fade out old content (300ms)
-      const fadeOutTimer = setTimeout(() => {
-        // Scroll to top smoothly
-        window.scrollTo({
-          top: 0,
-          behavior: "instant",
-        });
-
-        // Update location (change page)
-        setDisplayLocation(location);
-
-        // Phase 2: Brief pause with loading (200ms)
-        const fadeInTimer = setTimeout(() => {
-          // Fade in new content
-          setIsTransitioning(false);
-        }, 200);
-
-        return () => clearTimeout(fadeInTimer);
-      }, 300);
-
-      return () => clearTimeout(fadeOutTimer);
+    if (pathname === lastPath.current) {
+      // Same route, new children (e.g. data arrived) — pass straight through.
+      setDisplay(children);
+      return;
     }
-  }, [location, displayLocation]);
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      lastPath.current = pathname;
+      setDisplay(children);
+      return;
+    }
+
+    setPhase("out");
+
+    const swap = setTimeout(() => {
+      lastPath.current = pathname;
+      setDisplay(children);
+      setPhase("in");
+    }, 260);
+
+    return () => clearTimeout(swap);
+  }, [pathname, children]);
 
   return (
     <>
-      {/* Premium Loading Overlay */}
-      <div
-        className={`page-transition-overlay ${isTransitioning ? "active" : ""}`}
-      >
-        <div className="transition-content">
-          {/* Animated Logo */}
-          <div className="transition-logo-wrapper">
-            <div className="logo-circle">
-              <svg className="circle-svg" viewBox="0 0 100 100">
-                <circle className="circle-bg" cx="50" cy="50" r="45" />
-                <circle className="circle-progress" cx="50" cy="50" r="45" />
-              </svg>
-            </div>
-            <div className="transition-logo">
-              <img src="/assets/media/logo.png" alt="Techland" />
-            </div>
-          </div>
-
-          {/* Loading Text */}
-          <div className="transition-text">
-            <div className="loading-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Page Content */}
-      <div
-        className={`page-content-container ${
-          isTransitioning ? "fade-out" : "fade-in"
-        }`}
-      >
-        {children}
-      </div>
+      <span className={`pt-bar ${phase === "out" ? "is-running" : ""}`} aria-hidden="true">
+        <i />
+      </span>
+      <div className={`pt-stage pt-${phase}`}>{display}</div>
     </>
   );
 };

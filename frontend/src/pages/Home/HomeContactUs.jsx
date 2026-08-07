@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "../../services/api";
+import company from "../../config/company";
 // Import the toast library
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,8 +33,8 @@ const HomeContactUs = () => {
     // Email validation
     if (!formData.email) {
       tempErrors.email = "Email is required";
-    } else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(formData.email)) {
-      tempErrors.email = "Email must be a valid @gmail.com address";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) {
+      tempErrors.email = "Enter a valid email address";
     }
 
     // Phone validation
@@ -65,8 +66,8 @@ const HomeContactUs = () => {
     }
     if (name === "email") {
       if (!value) error = "Email is required";
-      else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(value))
-        error = "Email must be a valid @gmail.com address";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value))
+        error = "Enter a valid email address";
     }
     if (name === "number") {
       if (!value) error = "Phone number is required";
@@ -146,319 +147,510 @@ const HomeContactUs = () => {
     }
   };
 
+  const fieldClass = (name) => `cu-field${errors[name] ? " has-error" : ""}`;
+
   return (
-    <div>
-      <style>{`
-        .transparent-form .form-select {
-          appearance: none;
-          -webkit-appearance: none;
-          background-image: none !important;
-        }
-        
-        /* Fix for dropdown options visibility */
-        .transparent-form select option {
-          background-color: #0b1422 !important;
-          color: white !important;
-        }
+    <section className="cu-section" id="contact-sec">
+      <div className="cu-bg" aria-hidden="true">
+        <span className="cu-orb cu-orb--a" />
+        <span className="cu-orb cu-orb--b" />
+      </div>
 
-        /* Target active/hover states of options if possible */
-        .transparent-form select option:hover,
-        .transparent-form select option:focus,
-        .transparent-form select option:active {
-          background-color: #1c246d !important;
-        }
+      <div className="cu-container">
+        <div className="cu-grid">
+          {/* ---------------------------------------------- left: the pitch */}
+          <div className="cu-intro">
+            <span className="cu-eyebrow">
+              <span className="cu-eyebrow-line" aria-hidden="true" />
+              Start a project
+            </span>
 
-        /* Ensure consistent height for inputs and selects, but not textarea */
-        .transparent-form .transparent-input:not(textarea) {
-          height: 60px !important;
-        }
-        
-        .transparent-form .transparent-input {
-          background-color: rgba(255, 255, 255, 0.03) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          color: white !important;
-          padding-left: 20px !important;
-          border-radius: 12px !important;
-          transition: all 0.3s ease;
-        }
-        
-        .transparent-form .transparent-input:hover {
-          background-color: rgba(255, 255, 255, 0.06) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
-        }
-        
-        .transparent-form .transparent-input:focus {
-          background-color: rgba(255, 255, 255, 0.08) !important;
-          border-color: #3d4db7 !important;
-          box-shadow: 0 0 15px rgba(61, 77, 183, 0.2);
-          outline: none;
-        }
+            <h2 className="cu-title">
+              Tell us the problem.{" "}
+              <span className="cu-title-hl">We'll tell you what it takes</span>.
+            </h2>
 
-        .transparent-form textarea.transparent-input {
-          height: auto !important;
-          padding-top: 15px !important;
-          min-height: 120px;
-        }
-      `}</style>
+            <p className="cu-lede">
+              Send a short brief and you'll get scope, timeline and a number
+              back — usually within two working hours. No discovery-call gate in
+              front of it.
+            </p>
 
-      <div
-        className="history-sec1 overflow-hidden"
-        id="story-sec"
-        data-sec-pos="bottom-half"
-      >
-        <div>
-          <div className="">
-            {/* The main background image is applied here */}
-            <div
-              className="history-area overflow-hidden space"
-              style={{
-                backgroundColor: "#0b1422",
-                position: "relative",
-                color: "white",
-              }}
-              data-aos="fade-up"
-              data-aos-duration="1000"
-            >
-              {/* Background Shapes */}
-              <img
-                src="/assets/img/ai-shape-left.webp"
-                alt=""
-                className="ai-shape-left"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: 0,
-                  height: "400px",
-                  pointerEvents: "none",
-                  zIndex: 0,
-                }}
-                loading="lazy"
-              />
-              <img
-                src="/assets/img/ai-shape-right.webp"
-                alt=""
-                className="ai-shape-right"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: 0,
-                  height: "400px",
-                  pointerEvents: "none",
-                  zIndex: 0,
-                }}
-                loading="lazy"
-              />
-              <div
-                className="col-lg-8 mx-auto"
-                style={{ position: "relative", zIndex: 1 }}
+            <ul className="cu-points">
+              <li>
+                <span className="cu-tick" aria-hidden="true" />
+                A named engineer on the reply, not a sales script
+              </li>
+              <li>
+                <span className="cu-tick" aria-hidden="true" />
+                Fixed-scope quote or sprint rate — your choice
+              </li>
+              <li>
+                <span className="cu-tick" aria-hidden="true" />
+                Your brief stays confidential; NDA on request
+              </li>
+            </ul>
+
+            <div className="cu-direct">
+              <a className="cu-direct-item" href={company.phone.href}>
+                <span className="cu-direct-k">Call</span>
+                <span className="cu-direct-v">{company.phone.display}</span>
+              </a>
+              <a className="cu-direct-item" href={company.email.href}>
+                <span className="cu-direct-k">Email</span>
+                <span className="cu-direct-v">{company.email.primary}</span>
+              </a>
+              <a
+                className="cu-direct-item"
+                href={company.maps.place}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <div className="history-content">
-                  <div>
-                    <div className="title-area text-center">
-                      <span className="sub-title">
-                        Let Us Elevate Your Projects With Our Skills
-                      </span>
-                      <h4>
-                        <span className="scroll-text-ani">
-                          Get a Quote from a Top Mobile App Development Company
-                        </span>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="row justify-content-center">
-                    {/* RIGHT COLUMN: For the Form */}
-                    <div>
-                      <form
-                        onSubmit={handleSubmit}
-                        onKeyDown={handleKeyDown}
-                        method="POST"
-                        className="transparent-form"
-                      >
-                        <div className="row g-3">
-                          {/* Form Fields are now in a 2-column grid */}
-                          <div
-                            className="form-group col-md-6"
-                            data-aos="fade-right"
-                            data-aos-duration="800"
-                            data-aos-delay="100"
-                          >
-                            <input
-                              type="text"
-                              className={`form-control transparent-input ${errors.name ? "is-invalid" : ""
-                                }`}
-                              name="name"
-                              id="name"
-                              placeholder="First Name"
-                              value={formData.name}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                            />
-                            <img
-                              src="/assets/img/3d-icons/user-male-circle.png"
-                              alt="user icon"
-                              width="24"
-                              height="24"
-                              style={{ objectFit: "contain" }}
-                              loading="lazy"
-                            />
-                            {errors.name && (
-                              <div
-                                className="mt-1 fs-6 small"
-                                style={{ color: "red" }}
-                              >
-                                <i className="fas fa-exclamation-circle me-1"></i>
-                                {errors.name}
-                              </div>
-                            )}
-                          </div>
-                          <div
-                            className="form-group col-md-6"
-                            data-aos="fade-left"
-                            data-aos-duration="800"
-                            data-aos-delay="200"
-                          >
-                            <input
-                              type="email"
-                              className={`form-control transparent-input ${errors.email ? "is-invalid" : ""
-                                }`}
-                              name="email"
-                              id="email"
-                              placeholder="Your Mail (gmail.com only)"
-                              value={formData.email}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                            />
-                            <img
-                              src="/assets/img/3d-icons/email.png"
-                              alt="mail icon"
-                              width="24"
-                              height="24"
-                              style={{ objectFit: "contain" }}
-                              loading="lazy"
-                            />
-                            {errors.email && (
-                              <div
-                                className="mt-1 fs-6 small"
-                                style={{ color: "red" }}
-                              >
-                                <i className="fas fa-exclamation-circle me-1"></i>
-                                {errors.email}
-                              </div>
-                            )}
-                          </div>
-                          <div className="form-group col-md-6">
-                            <input
-                              type="tel"
-                              className={`form-control transparent-input ${errors.number ? "is-invalid" : ""
-                                }`}
-                              name="number"
-                              id="number"
-                              placeholder="Your Number"
-                              value={formData.number}
-                              onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, "");
-                                if (val.length <= 10) {
-                                  handleChange({
-                                    target: { name: "number", value: val },
-                                  });
-                                }
-                              }}
-
-                              onFocus={handleFocus}
-                              maxLength="10"
-                            />
-                            <img
-                              src="/assets/img/3d-icons/phone.png"
-                              alt="phone icon"
-                              width="24"
-                              height="24"
-                              style={{ objectFit: "contain" }}
-                              loading="lazy"
-                            />
-                            {errors.number && (
-                              <div
-                                className="mt-1 fs-6 small"
-                                style={{ color: "red" }}
-                              >
-                                <i className="fas fa-exclamation-circle me-1"></i>
-                                {errors.number}
-                              </div>
-                            )}
-                          </div>
-                          <div className="form-group col-12">
-                            <textarea
-                              name="message"
-                              id="message"
-                              cols="30"
-                              rows="3"
-                              className={`form-control transparent-input ${errors.message ? "is-invalid" : ""
-                                }`}
-                              placeholder="Your Message"
-                              value={formData.message}
-                              onChange={handleChange}
-                              onFocus={handleFocus}
-                            ></textarea>
-                            <img
-                              src="/assets/icons/chat.png"
-                              alt="chat icon"
-                              width="24"
-                              height="24"
-                              style={{ objectFit: "contain" }}
-                              loading="lazy"
-                            />
-                            {errors.message && (
-                              <div
-                                className="mt-1 fs-6 small"
-                                style={{ color: "red" }}
-                              >
-                                <i className="fas fa-exclamation-circle me-1"></i>
-                                {errors.message}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <p className="form-messages mb-0 mt-3"></p>
-
-                        <div className="form-btn-wrapp">
-                          <div className="form-btn">
-                            <button
-                              type="submit"
-                              className="th-btn style5 th-radius"
-                              disabled={loading}
-                            >
-                              {loading ? "Submitting..." : "Send Message"}{" "}
-                              <i className="fa-regular fa-paper-plane"></i>
-                            </button>
-                          </div>
-                          <div className="contact-info">
-                            <p className="contact-info_link">
-                              <a href="tel: 78423 85604"> 78423 85604</a>
-                            </p>
-                            <div className="contact-info_icon">
-                              <a href="tel: 78423 85604">
-                                <img
-                                  src="/assets/img/3d-icons/phone.png"
-                                  alt="call icon"
-                                  width="28"
-                                  height="28"
-                                  style={{ objectFit: "contain" }}
-                                  loading="lazy"
-                                />
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                <span className="cu-direct-k">Studio</span>
+                <span className="cu-direct-v">{company.address.medium}</span>
+              </a>
             </div>
+          </div>
+
+          {/* ---------------------------------------------- right: the form */}
+          <div className="cu-formwrap">
+            <form
+              className="cu-form"
+              onSubmit={handleSubmit}
+              onKeyDown={handleKeyDown}
+              noValidate
+            >
+              <header className="cu-form-head">
+                <h3>Request a quote</h3>
+                <span className="cu-badge">Reply in 2 working hours</span>
+              </header>
+
+              <div className="cu-row">
+                <label className={fieldClass("name")}>
+                  <span className="cu-label">
+                    Full name <em aria-hidden="true">*</em>
+                  </span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    placeholder="Jane Doe"
+                    autoComplete="name"
+                  />
+                  {errors.name && <span className="cu-err">{errors.name}</span>}
+                </label>
+
+                <label className={fieldClass("email")}>
+                  <span className="cu-label">
+                    Work email <em aria-hidden="true">*</em>
+                  </span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    placeholder="jane@company.com"
+                    autoComplete="email"
+                  />
+                  {errors.email && <span className="cu-err">{errors.email}</span>}
+                </label>
+              </div>
+
+              <div className="cu-row">
+                <label className={fieldClass("number")}>
+                  <span className="cu-label">
+                    Phone <em aria-hidden="true">*</em>
+                  </span>
+                  <span className="cu-tel">
+                    <span className="cu-cc">+91</span>
+                    <input
+                      type="tel"
+                      name="number"
+                      value={formData.number}
+                      onChange={handleChange}
+                      onFocus={handleFocus}
+                      placeholder="98765 43210"
+                      maxLength={10}
+                      autoComplete="tel"
+                    />
+                  </span>
+                  {errors.number && (
+                    <span className="cu-err">{errors.number}</span>
+                  )}
+                </label>
+
+                <label className={fieldClass("subject")}>
+                  <span className="cu-label">Subject</span>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    placeholder="What are we building?"
+                  />
+                </label>
+              </div>
+
+              <label className={fieldClass("message")}>
+                <span className="cu-label">
+                  Project details <em aria-hidden="true">*</em>
+                </span>
+                <textarea
+                  name="message"
+                  rows={5}
+                  value={formData.message}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  placeholder="Goals, timeline, and any constraints we should know about…"
+                />
+                {errors.message && (
+                  <span className="cu-err">{errors.message}</span>
+                )}
+              </label>
+
+              <footer className="cu-form-foot">
+                <p className="cu-consent">
+                  By submitting, you agree to be contacted by Techland IT
+                  Solutions about this enquiry.
+                </p>
+                <button type="submit" className="cu-submit" disabled={loading}>
+                  {loading ? "Sending…" : "Send brief"}
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 10h11M11 5l5 5-5 5" />
+                  </svg>
+                </button>
+              </footer>
+            </form>
           </div>
         </div>
       </div>
-    </div >
+
+      <style>{`
+        /* ============================================================
+           GET A QUOTE — corporate
+
+           Replaces the dark build: near-black ground, blue/green/purple
+           orbs bleeding across the panel, and emoji standing in for
+           field icons (👤 @ 📞 🎨 💬), which is the single fastest way
+           to make a B2B form look unserious.
+
+           Light ground, real labels above real inputs, one accent, and
+           the commercial terms stated next to the form rather than left
+           for the visitor to guess.
+           ============================================================ */
+        .cu-section {
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          padding: 96px 0 104px;
+          background: #ffffff;
+        }
+        @media (min-width: 1024px) { .cu-section { padding: 124px 0 132px; } }
+
+        .cu-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+        .cu-bg::after {
+          content: "";
+          position: absolute; inset: 0; z-index: -1;
+          background: linear-gradient(180deg, #ffffff 0%, #fafaff 60%, #ffffff 100%);
+        }
+        .cu-orb { position: absolute; border-radius: 999px; filter: blur(120px); }
+        .cu-orb--a {
+          width: 480px; height: 480px; top: -180px; left: -160px;
+          background: radial-gradient(closest-side, rgba(22,49,152,0.12), transparent);
+        }
+        .cu-orb--b {
+          width: 520px; height: 520px; bottom: -220px; right: -180px;
+          background: radial-gradient(closest-side, rgba(124,58,237,0.12), transparent);
+        }
+
+        .cu-container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 1024px) { .cu-container { padding: 0 32px; } }
+
+        .cu-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 44px;
+          align-items: start;
+        }
+        @media (min-width: 992px) {
+          .cu-grid { grid-template-columns: 1fr 1.05fr; gap: 64px; }
+        }
+
+        /* ---------------------------------------------------- left */
+        .cu-intro { display: flex; flex-direction: column; }
+        @media (min-width: 992px) { .cu-intro { position: sticky; top: 120px; } }
+
+        .cu-eyebrow {
+          display: inline-flex; align-items: center; gap: 10px;
+          font-family: ui-monospace, monospace;
+          font-size: 10.5px; font-weight: 700;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          color: rgba(10,10,10,0.45);
+        }
+        .cu-eyebrow-line {
+          width: 26px; height: 1px;
+          background: linear-gradient(to right, transparent, #4f46e5);
+        }
+
+        .cu-title {
+          font-family: "Play", sans-serif;
+          font-weight: 400;
+          font-size: clamp(1.9rem, 2.9vw + 0.6rem, 2.9rem);
+          line-height: 1.08;
+          letter-spacing: -0.035em;
+          color: #0a0a0a;
+          margin: 18px 0 0;
+          max-width: 18ch;
+          text-wrap: balance;
+        }
+        .cu-title-hl {
+          font-weight: 700;
+          background: linear-gradient(135deg, #163198 0%, #4f46e5 50%, #7c3aed 100%);
+          -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent; color: transparent;
+        }
+
+        .cu-lede {
+          margin: 20px 0 0;
+          font-size: 16px; line-height: 1.68;
+          color: rgba(10,10,10,0.55);
+          max-width: 46ch;
+        }
+
+        .cu-points {
+          list-style: none;
+          margin: 26px 0 0;
+          padding: 0;
+          display: grid;
+          gap: 12px;
+        }
+        .cu-points li {
+          display: flex; align-items: flex-start; gap: 11px;
+          font-size: 14.5px; line-height: 1.55;
+          color: rgba(10,10,10,0.68);
+        }
+        .cu-tick {
+          width: 18px; height: 18px; flex: none;
+          margin-top: 1px;
+          border-radius: 50%;
+          background: linear-gradient(140deg, rgba(22,49,152,0.1), rgba(124,58,237,0.14));
+          border: 1px solid rgba(79,70,229,0.24);
+          position: relative;
+        }
+        .cu-tick::after {
+          content: "";
+          position: absolute; left: 5px; top: 4.5px;
+          width: 5px; height: 8px;
+          border: solid #4338ca;
+          border-width: 0 1.6px 1.6px 0;
+          transform: rotate(43deg);
+        }
+
+        .cu-direct {
+          margin-top: 32px;
+          padding-top: 8px;
+          border-top: 1px solid rgba(10,10,10,0.09);
+          display: grid;
+        }
+        .cu-direct-item {
+          display: grid;
+          grid-template-columns: 74px 1fr;
+          gap: 16px;
+          align-items: baseline;
+          padding: 13px 0;
+          border-bottom: 1px solid rgba(10,10,10,0.07);
+          text-decoration: none;
+          transition: padding-left 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .cu-direct-item:hover { padding-left: 6px; }
+        .cu-direct-k {
+          font-family: ui-monospace, monospace;
+          font-size: 9.5px; font-weight: 700;
+          letter-spacing: 0.18em; text-transform: uppercase;
+          color: rgba(10,10,10,0.38);
+        }
+        .cu-direct-v {
+          font-size: 14.5px;
+          color: #0a0a0a;
+          transition: color 0.3s ease;
+        }
+        .cu-direct-item:hover .cu-direct-v { color: #4f46e5; }
+
+        /* --------------------------------------------------- right */
+        .cu-formwrap { position: relative; }
+
+        .cu-form {
+          background: #ffffff;
+          border: 1px solid rgba(10,10,10,0.08);
+          border-radius: 22px;
+          padding: 28px 26px 26px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          box-shadow: 0 2px 4px -2px rgba(10,10,10,0.05),
+                      0 32px 64px -40px rgba(10,10,10,0.28);
+        }
+        @media (min-width: 768px) { .cu-form { padding: 34px 34px 30px; } }
+
+        .cu-form-head {
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; flex-wrap: wrap;
+          padding-bottom: 18px;
+          border-bottom: 1px solid rgba(10,10,10,0.07);
+        }
+        .cu-form-head h3 {
+          margin: 0;
+          font-family: "Play", sans-serif;
+          font-size: 1.3rem; font-weight: 700;
+          letter-spacing: -0.028em;
+          color: #0a0a0a;
+        }
+        .cu-badge {
+          font-family: ui-monospace, monospace;
+          font-size: 9.5px; font-weight: 700;
+          letter-spacing: 0.15em; text-transform: uppercase;
+          color: #4338ca;
+          background: rgba(79,70,229,0.08);
+          border: 1px solid rgba(79,70,229,0.18);
+          padding: 6px 10px;
+          border-radius: 999px;
+          white-space: nowrap;
+        }
+
+        .cu-row { display: grid; grid-template-columns: 1fr; gap: 18px; }
+        @media (min-width: 560px) { .cu-row { grid-template-columns: 1fr 1fr; } }
+
+        .cu-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+        .cu-label {
+          font-size: 12.5px;
+          font-weight: 620;
+          letter-spacing: -0.005em;
+          color: rgba(10,10,10,0.62);
+        }
+        .cu-label em { font-style: normal; color: #7c3aed; margin-left: 1px; }
+
+        .cu-field input,
+        .cu-field textarea {
+          width: 100%;
+          font-family: inherit;
+          font-size: 14.5px;
+          color: #0a0a0a;
+          padding: 12px 14px;
+          border-radius: 11px;
+          border: 1px solid rgba(10,10,10,0.13);
+          background: #fcfcfe;
+          outline: none;
+          resize: vertical;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+        .cu-field textarea { min-height: 128px; line-height: 1.6; }
+        .cu-field input::placeholder,
+        .cu-field textarea::placeholder { color: rgba(10,10,10,0.32); }
+        .cu-field input:focus,
+        .cu-field textarea:focus {
+          background: #ffffff;
+          border-color: rgba(79,70,229,0.55);
+          box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
+        }
+
+        /* Phone: the country code is part of the control, not a separate chip. */
+        .cu-tel {
+          display: flex; align-items: stretch;
+          border-radius: 11px;
+          border: 1px solid rgba(10,10,10,0.13);
+          background: #fcfcfe;
+          overflow: hidden;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+        .cu-tel:focus-within {
+          background: #ffffff;
+          border-color: rgba(79,70,229,0.55);
+          box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
+        }
+        .cu-cc {
+          display: inline-flex; align-items: center;
+          padding: 0 12px;
+          font-size: 14px; font-weight: 620;
+          color: rgba(10,10,10,0.5);
+          border-right: 1px solid rgba(10,10,10,0.1);
+          background: rgba(10,10,10,0.02);
+        }
+        .cu-tel input { border: 0; background: transparent; border-radius: 0; }
+        .cu-tel input:focus { box-shadow: none; background: transparent; }
+
+        .cu-field.has-error input,
+        .cu-field.has-error textarea,
+        .cu-field.has-error .cu-tel { border-color: rgba(220,38,38,0.55); }
+        .cu-field.has-error input:focus,
+        .cu-field.has-error textarea:focus,
+        .cu-field.has-error .cu-tel:focus-within {
+          box-shadow: 0 0 0 4px rgba(220,38,38,0.1);
+        }
+        .cu-err {
+          font-size: 12px;
+          color: #dc2626;
+          letter-spacing: -0.005em;
+        }
+
+        .cu-form-foot {
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 18px; flex-wrap: wrap;
+          padding-top: 6px;
+        }
+        .cu-consent {
+          margin: 0;
+          font-size: 11.5px;
+          line-height: 1.5;
+          color: rgba(10,10,10,0.42);
+          max-width: 34ch;
+        }
+
+        .cu-submit {
+          display: inline-flex; align-items: center; gap: 9px;
+          padding: 14px 26px;
+          border: 0;
+          border-radius: 999px;
+          font-family: "Play", sans-serif;
+          font-size: 14px; font-weight: 640;
+          letter-spacing: -0.01em;
+          color: #ffffff;
+          cursor: pointer;
+          background: linear-gradient(120deg, #163198, #4f46e5 55%, #7c3aed);
+          box-shadow: 0 18px 40px -18px rgba(79,70,229,0.7);
+          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease;
+        }
+        .cu-submit:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 24px 52px -18px rgba(79,70,229,0.85);
+        }
+        .cu-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+        .cu-submit svg {
+          width: 17px; height: 17px;
+          fill: none; stroke: currentColor;
+          stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .cu-submit:hover:not(:disabled) svg { transform: translateX(3px); }
+
+        @media (max-width: 559px) {
+          .cu-form-foot { flex-direction: column-reverse; align-items: stretch; }
+          .cu-submit { justify-content: center; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .cu-submit, .cu-submit svg, .cu-direct-item, .cu-direct-v,
+          .cu-field input, .cu-field textarea, .cu-tel {
+            transition: none !important;
+          }
+          .cu-submit:hover:not(:disabled) { transform: none !important; }
+          .cu-intro { position: static; }
+        }
+      `}</style>
+    </section>
   );
 };
+
 export default HomeContactUs;

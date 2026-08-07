@@ -1,15 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 import SEO from "../../components/SEO";
 import { getSEO } from "../../config/seoConfig";
-// Import the toast library
+import company from "../../config/company";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import "./Contact.css";
+
+/** Adds `.is-in` the first time an element enters view. Fires once. */
+const useReveal = (options = {}) => {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setSeen(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15, ...options }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return [ref, seen];
+};
 
 const Contact = () => {
   const seo = getSEO("contact");
-  // State for form data - UPDATED from ContactUs
+
   const [formData, setFormData] = useState({
     firstName: "",
     phone: "",
@@ -17,15 +51,15 @@ const Contact = () => {
     message: "",
   });
   const [errors, setErrors] = useState({});
-
-  // State for loading button
   const [loading, setLoading] = useState(false);
 
-  // Validation function
+  const [channelsRef, channelsIn] = useReveal();
+  const [formRef, formIn] = useReveal();
+  const [mapRef, mapIn] = useReveal({ threshold: 0.08 });
+
   const validateForm = () => {
     let tempErrors = {};
 
-    // Name validation
     if (!formData.firstName.trim()) {
       tempErrors.firstName = "Name is required";
     } else if (formData.firstName.trim().length < 2) {
@@ -34,21 +68,18 @@ const Contact = () => {
       tempErrors.firstName = "Name should contain only letters";
     }
 
-    // Email validation
     if (!formData.email) {
       tempErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       tempErrors.email = "Invalid email format";
     }
 
-    // Phone validation
     if (!formData.phone) {
       tempErrors.phone = "Phone number is required";
     } else if (!/^\d{10,15}$/.test(formData.phone)) {
       tempErrors.phone = "Phone number must be 10-15 digits";
     }
 
-    // Message validation
     if (!formData.message) {
       tempErrors.message = "Message is required";
     } else if (formData.message.length < 10) {
@@ -59,17 +90,12 @@ const Contact = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
-  // Handle input changes - UPDATED to match new state keys
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Clear error for specific field
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
+    if (errors[name]) setErrors({ ...errors, [name]: "" });
   };
 
-  // Handle form submission with validation - UPDATED from ContactUs
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -86,14 +112,11 @@ const Contact = () => {
         phone: formData.phone,
         email: formData.email,
         message: formData.message,
-        subject: "General Inquiry (Contact Page)"
+        subject: "General Inquiry (Contact Page)",
       });
 
-      // Reset form on success immediately
       setFormData({ firstName: "", phone: "", email: "", message: "" });
       setErrors({});
-
-      // Show success toast
       toast.success("Message sent successfully! We'll get back to you soon.");
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -114,8 +137,66 @@ const Contact = () => {
     }
   };
 
+  /** Pointer position as CSS variables — no re-render per mouse move. */
+  const trackPointer = (e) => {
+    const card = e.target.closest(".ct-channel");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
+  const fieldClass = (name) => `ct-field${errors[name] ? " has-error" : ""}`;
+
+  const channels = [
+    {
+      k: "Call us",
+      v: company.phone.display,
+      note: "Mon–Sat, 10:00–19:00 IST",
+      href: company.phone.href,
+      icon: (
+        <path d="M4.5 3h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5L14 12l4 1.5v3a1.5 1.5 0 0 1-1.7 1.5A14 14 0 0 1 3 4.7 1.5 1.5 0 0 1 4.5 3z" />
+      ),
+    },
+    {
+      k: "Email us",
+      v: company.email.primary,
+      note: "Reply within two working hours",
+      href: company.email.href,
+      icon: (
+        <>
+          <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
+          <path d="M3 6l7 5 7-5" />
+        </>
+      ),
+    },
+    {
+      k: "WhatsApp",
+      v: "Chat with us",
+      note: "Fastest for quick questions",
+      href: company.whatsapp("Hi Techland, I have a question about"),
+      external: true,
+      icon: (
+        <path d="M10 2.5a7.5 7.5 0 0 0-6.4 11.4L2.5 17.5l3.7-1.1A7.5 7.5 0 1 0 10 2.5z" />
+      ),
+    },
+    {
+      k: "Visit us",
+      v: company.address.medium,
+      note: company.address.postalCode,
+      href: company.maps.place,
+      external: true,
+      icon: (
+        <>
+          <path d="M10 18s6-5.2 6-9a6 6 0 1 0-12 0c0 3.8 6 9 6 9z" />
+          <circle cx="10" cy="9" r="2.2" />
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div>
+    <div className="ct-page">
       <SEO
         title={seo.title}
         description={seo.description}
@@ -123,333 +204,255 @@ const Contact = () => {
         canonical={seo.canonical}
       />
 
-      {/* --- Breadcrumb Section - Content UPDATED --- */}
-      <div
-        className="breadcumb-area style2 bg-smoke4"
-        data-aos="fade-down"
-        data-aos-duration="1000"
+      {/* ============================================ hero */}
+      <section className="ct-hero">
+        <div className="ct-hero-bg" aria-hidden="true">
+          <span className="ct-orb ct-orb--a" />
+          <span className="ct-orb ct-orb--b" />
+          <span className="ct-hero-grid" />
+        </div>
+
+        <div className="ct-container">
+          <nav className="ct-crumb" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Contact</span>
+          </nav>
+
+          <h1 className="ct-hero-title">
+            Tell us the problem.
+            <span className="ct-hero-hl"> We'll tell you what it takes</span>.
+          </h1>
+
+          <p className="ct-hero-lede">
+            Scope, timeline and a number back within two working hours — no
+            discovery-call gate in front of it.
+          </p>
+        </div>
+      </section>
+
+      {/* ============================================ channels */}
+      <section
+        className={`ct-channels ${channelsIn ? "is-in" : ""}`}
+        ref={channelsRef}
+        aria-label="Ways to reach us"
       >
-        <div
-          className="breadcumb-wrapper"
-          style={{ backgroundImage: "url('assets/img/bg/breadcumb-bg.jpg')" }}
-        >
-          <div className="container">
-            <div className="breadcumb-content">
-              <h1 className="breadcumb-title">Contact Us</h1>
-              <ul className="breadcumb-menu">
-                <li>
-                  <Link to="/">Home</Link>
-                </li>
-                <li>Contact Us</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* --- Contact Info Section - Content UPDATED --- */}
-      <div
-        className="contact-area space space-extra-bottom overflow-hidden"
-        data-aos="fade-up"
-        data-aos-duration="1000"
-      >
-        <div className="container">
-          <div className="contact-wrapp2 mb-60 smoke-bg">
-            <div className="contact-infobox-top">
-              <div className="row align-items-center justify-content-between text-center">
-                <div className="col-xl-3 col-lg-3">
-                  <div className="contact-shape-left text-sm-start">
-                    <img
-                      src="/assets/img/3d-icons/user-male-circle.png"
-                      alt="Customer support icon"
-                      width="150"
-                      height="150"
-                      loading="lazy"
-                      style={{ objectFit: "contain" }}
-                    />
-                  </div>
-                </div>
-                <div className="col-xl-6 col-lg-6">
-                  <div className="title-area contact-titlebox2 text-center">
-                    <span className="sub-title">Work With Us</span>
-                    {/* --- Title and Description UPDATED --- */}
-                    <h3 className="sec-title">Contact Techland IT Solutions</h3>
-                    <p className="sec-text">
-                      Get in touch with Techland IT Solutions for expert digital
-                      marketing, web development, and app development services
-                      in Hyderabad.
-                    </p>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-3">
-                  <div className="contact-shape-right text-sm-end">
-                    <img
-                      src="/assets/icons/communication.png"
-                      alt="Communication icon"
-                      width="150"
-                      height="150"
-                      loading="lazy"
-                      style={{ objectFit: "contain" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="contact-infobox-bottom d-xl-flex align-items-center justify-content-between">
-              {/* --- Contact Details UPDATED --- */}
-              <div className="about-contact-grid inner-style">
-                <span className="about-contact-icon">
-                  <img
-                    src="/assets/icons/phone.png"
-                    alt="Phone"
-                    width="48"
-                    height="48"
-                    loading="lazy"
-                    style={{ objectFit: "contain" }}
-                  />
-                </span>
-                <div className="about-contact-details">
-                  <span className="sec-text">Call Us For Query</span>
-                  <p className="about-contact-details-text">
-                    <a href="tel:+917842385604">+91 784 238 5604</a>
-                  </p>
-                </div>
-              </div>
-              <div className="about-contact-grid inner-style">
-                <span className="about-contact-icon">
-                  <img
-                    src="/assets/icons/email.png"
-                    alt="Email"
-                    width="48"
-                    height="48"
-                    loading="lazy"
-                    style={{ objectFit: "contain" }}
-                  />
-                </span>
-                <div className="about-contact-details">
-                  <span className="sec-text">Email Us Anytime</span>
-                  <p className="about-contact-details-text">
-                    <a href="mailto:info@techlanditsolutions.com">
-                      info@techlanditsolutions.com
-                    </a>
-                  </p>
-                </div>
-              </div>
-              <div className="about-contact-grid inner-style">
-                <span className="about-contact-icon">
-                  <img
-                    src="/assets/icons/location.png"
-                    alt="Location"
-                    width="48"
-                    height="48"
-                    loading="lazy"
-                    style={{ objectFit: "contain" }}
-                  />
-                </span>
-                <div className="about-contact-details">
-                  <span className="sec-text">Visit Our Office</span>
-                  <p className="about-contact-details-text">
-                    <a
-                      href="https://maps.app.goo.gl/N13ixNnC7UHf7nwT9"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Kavuri Hills, Madhapur, Hyderabad
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* --- Form Section - Fields and Logic UPDATED --- */}
-          <div className="contact-form-wrapp2">
-            <div className="row">
-              <div
-                className="col-xl-7 order-1 order-xl-0"
-                data-aos="fade-right"
-                data-aos-duration="1200"
+        <div className="ct-container">
+          <div className="ct-channel-grid" onMouseMove={trackPointer}>
+            {channels.map((c, i) => (
+              <a
+                className="ct-channel"
+                key={c.k}
+                href={c.href}
+                style={{ "--i": i }}
+                {...(c.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
               >
-                <div className="contact-formbox">
-                  <form
-                    onSubmit={handleSubmit}
-                    onKeyDown={handleKeyDown}
-                    className="contact-form ajax-contact"
-                  >
-                    <div className="row">
-                      {/* --- Name field UPDATED --- */}
-                      <div className="col-sm-6 form-group">
-                        <input
-                          type="text"
-                          className={`form-control ${errors.firstName ? "is-invalid" : ""
-                            }`}
-                          name="firstName"
-                          id="name3"
-                          placeholder="Your Name"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          minLength="2"
-                          pattern="[A-Za-z\s]+"
-                          title="Please enter valid name (letters only)"
-                        />
-                        <img
-                          src="/assets/icons/user-male-circle.png"
-                          alt="User icon"
-                          width="24"
-                          height="24"
-                          loading="lazy"
-                          style={{ objectFit: "contain" }}
-                        />
-                        {errors.firstName && (
-                          <div className="text-danger mt-1 fs-6 small">
-                            <i className="fas fa-exclamation-circle me-1"></i>
-                            {errors.firstName}
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-sm-6 form-group">
-                        <input
-                          type="email"
-                          className={`form-control ${errors.email ? "is-invalid" : ""
-                            }`}
-                          name="email"
-                          id="email"
-                          placeholder="Email Address"
-                          value={formData.email}
-                          onChange={handleChange}
-                        />
-                        <img
-                          src="/assets/icons/email.png"
-                          alt="Email icon"
-                          width="24"
-                          height="24"
-                          loading="lazy"
-                          style={{ objectFit: "contain" }}
-                        />
-                        {errors.email && (
-                          <div className="text-danger mt-1 fs-6 small">
-                            <i className="fas fa-exclamation-circle me-1"></i>
-                            {errors.email}
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-sm-6 form-group">
-                        <input
-                          type="tel"
-                          className={`form-control ${errors.phone ? "is-invalid" : ""
-                            }`}
-                          name="phone"
-                          id="number"
-                          placeholder="Phone Number"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          pattern="[0-9]{10,15}"
-                          title="Phone number must be between 10 and 15 digits"
-                        />
-                        <img
-                          src="/assets/icons/phone.png"
-                          alt="Phone icon"
-                          width="24"
-                          height="24"
-                          loading="lazy"
-                          style={{ objectFit: "contain" }}
-                        />
-                        {errors.phone && (
-                          <div className="text-danger mt-1 fs-6 small">
-                            <i className="fas fa-exclamation-circle me-1"></i>
-                            {errors.phone}
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-sm-6 form-group">
-                        {/* Empty div for layout alignment */}
-                      </div>
-                      <div className="form-group col-12">
-                        <textarea
-                          name="message"
-                          id="message"
-                          cols="30"
-                          rows="3"
-                          className={`form-control ${errors.message ? "is-invalid" : ""
-                            }`}
-                          placeholder="Your Message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          minLength="10"
-                          title="Message must be at least 10 characters long"
-                        ></textarea>
-                        <img
-                          src="/assets/icons/chat.png"
-                          alt="Message icon"
-                          width="24"
-                          height="24"
-                          loading="lazy"
-                          style={{ objectFit: "contain" }}
-                        />
-                        {errors.message && (
-                          <div className="text-danger mt-1 fs-6 small">
-                            <i className="fas fa-exclamation-circle me-1"></i>
-                            {errors.message}
-                          </div>
-                        )}
-                      </div>
-                      <div className="form-btn col-12">
-                        <button
-                          type="submit"
-                          className="th-btn"
-                          disabled={loading}
-                        >
-                          {loading ? "Submitting..." : "Submit Now"}
-                          <img
-                            src="/assets/icons/paper-plane.png"
-                            alt="Send icon"
-                            width="22"
-                            height="22"
-                            loading="lazy"
-                            style={{ objectFit: "contain" }}
-                          />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="form-messages mb-0 mt-3"></p>
-                  </form>
-                </div>
+                <span className="ct-channel-spot" aria-hidden="true" />
+                <span className="ct-channel-edge" aria-hidden="true" />
+
+                {/* Same glyph again, oversized and faint — gives the card a
+                    background layer so it reads as a surface, not a rectangle
+                    of text. */}
+                <span className="ct-channel-mark" aria-hidden="true">
+                  <svg viewBox="0 0 20 20">{c.icon}</svg>
+                </span>
+
+                <span className="ct-channel-ico" aria-hidden="true">
+                  <svg viewBox="0 0 20 20">{c.icon}</svg>
+                </span>
+
+                <span className="ct-channel-k">{c.k}</span>
+                <span className="ct-channel-v">{c.v}</span>
+                <span className="ct-channel-note">{c.note}</span>
+
+                <span className="ct-channel-go" aria-hidden="true">
+                  <svg viewBox="0 0 20 20">
+                    <path d="M4 10h11M11 5l5 5-5 5" />
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================ form */}
+      <section className={`ct-main ${formIn ? "is-in" : ""}`} ref={formRef}>
+        <div className="ct-container ct-main-grid">
+          <div className="ct-intro">
+            <span className="ct-eyebrow">
+              <span className="ct-eyebrow-line" aria-hidden="true" />
+              Send a brief
+            </span>
+            <h2 className="ct-h2">
+              A paragraph is enough to <span className="ct-h2-hl">start</span>.
+            </h2>
+            <p className="ct-intro-text">
+              Tell us what you're building and what's in the way. If we're not
+              the right fit we'll say so — and point you at someone who is.
+            </p>
+
+            <ul className="ct-promises">
+              <li>
+                <span className="ct-tick" aria-hidden="true" />
+                A named engineer replies, not a sales script
+              </li>
+              <li>
+                <span className="ct-tick" aria-hidden="true" />
+                Fixed-scope quote or sprint rate, your choice
+              </li>
+              <li>
+                <span className="ct-tick" aria-hidden="true" />
+                Your brief stays confidential; NDA on request
+              </li>
+            </ul>
+          </div>
+
+          <form
+            className="ct-form"
+            onSubmit={handleSubmit}
+            onKeyDown={handleKeyDown}
+            noValidate
+          >
+            <header className="ct-form-head">
+              <h3>Get in touch</h3>
+              <span className="ct-badge">
+                <span className="ct-badge-dot" aria-hidden="true" />
+                Reply in 2 working hours
+              </span>
+            </header>
+
+            <div className="ct-row">
+              <label className={fieldClass("firstName")}>
+                <span className="ct-label">
+                  Your name <em aria-hidden="true">*</em>
+                </span>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="Jane Doe"
+                  autoComplete="name"
+                />
+                {errors.firstName && (
+                  <span className="ct-err">{errors.firstName}</span>
+                )}
+              </label>
+
+              <label className={fieldClass("email")}>
+                <span className="ct-label">
+                  Email <em aria-hidden="true">*</em>
+                </span>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="jane@company.com"
+                  autoComplete="email"
+                />
+                {errors.email && <span className="ct-err">{errors.email}</span>}
+              </label>
+            </div>
+
+            <label className={fieldClass("phone")}>
+              <span className="ct-label">
+                Phone <em aria-hidden="true">*</em>
+              </span>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="98765 43210"
+                autoComplete="tel"
+              />
+              {errors.phone && <span className="ct-err">{errors.phone}</span>}
+            </label>
+
+            <label className={fieldClass("message")}>
+              <span className="ct-label">
+                What are we building? <em aria-hidden="true">*</em>
+              </span>
+              <textarea
+                name="message"
+                rows={6}
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Goals, timeline, and anything we should know…"
+              />
+              {errors.message && (
+                <span className="ct-err">{errors.message}</span>
+              )}
+            </label>
+
+            <footer className="ct-form-foot">
+              <p className="ct-consent">
+                By submitting, you agree to be contacted by {company.name} about
+                this enquiry.
+              </p>
+              <button type="submit" className="ct-submit" disabled={loading}>
+                <span>{loading ? "Sending…" : "Send message"}</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 5l5 5-5 5" />
+                </svg>
+              </button>
+            </footer>
+          </form>
+        </div>
+      </section>
+
+      {/* ============================================ map */}
+      <section className={`ct-map ${mapIn ? "is-in" : ""}`} ref={mapRef}>
+        <div className="ct-container">
+          <div className="ct-map-card">
+            <div className="ct-map-info">
+              <span className="ct-eyebrow">
+                <span className="ct-eyebrow-line" aria-hidden="true" />
+                The studio
+              </span>
+              <h2 className="ct-h2">Madhapur, Hyderabad.</h2>
+              <address className="ct-address">{company.address.full}</address>
+              <div className="ct-map-actions">
+                <a
+                  className="ct-btn ct-btn--solid"
+                  href={company.maps.place}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open in Maps
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 10h11M11 5l5 5-5 5" />
+                  </svg>
+                </a>
+                <a className="ct-btn ct-btn--ghost" href={company.phone.href}>
+                  {company.phone.display}
+                </a>
               </div>
-              <div
-                className="col-xl-5 order-0 order-xl-1"
-                data-aos="fade-left"
-                data-aos-duration="1200"
-              >
-                <div className="contact-thumb">
-                  <img
-                    src="assets/img/normal/contact-2-img.jpg"
-                    alt="Contact us - Techland IT Solutions team"
-                    width="600"
-                    height="600"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
+            </div>
+
+            <div className="ct-map-frame">
+              {/* The embed is heavy and sits well below the fold, so it only
+                  mounts once the section is actually in view. */}
+              {mapIn && (
+                <iframe
+                  src={company.maps.embed}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Techland IT Solutions location map"
+                />
+              )}
             </div>
           </div>
         </div>
-      </div>
-
-      {/* --- Map Section - Content UPDATED --- */}
-      <div className="" data-aos="zoom-in" data-aos-duration="1200">
-        <div className="contact-map style2">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.263340846998!2d78.37701741037169!3d17.447105483381275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb938fa04b952d%3A0x2d0c448b127e06e3!2sTechland%20IT%20Solutions!5e0!3m2!1sen!2sin!4v1737129743764!5m2!1sen!2sin"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Techland IT Solutions location map"
-          ></iframe>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -1,126 +1,127 @@
-import React from "react";
-// You might not need Link here if there are no links, but it's good practice to have it available.
-// import { Link } from 'react-router-dom';
+import React, { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import "./OurFeatures.css";
 
 const OurFeatures = () => {
-  // Create a data array for features to make the component cleaner and more maintainable
+  useEffect(() => {
+    AOS.init({
+      once: true,
+      duration: 1000,
+    });
+  }, []);
+
   const featuresData = [
     {
       id: 1,
       icon: "/assets/img/cdn-assets/icons8-security-checked.png",
       title: "Enhanced Security",
-      description:
-        "Immutable and encrypted transactions prevent fraud and unauthorized access.",
+      description: "Immutable and encrypted transactions prevent fraud and unauthorized access with state-of-the-art blockchain technology."
     },
     {
       id: 2,
       icon: "/assets/img/cdn-assets/icons8-handshake.png",
       title: "Transparency & Trust",
-      description:
-        "Public ledgers ensure accountability and build trust with all stakeholders.",
+      description: "Public ledgers ensure full accountability and build unshakeable trust with all your stakeholders and partners."
     },
     {
       id: 3,
       icon: "/assets/img/cdn-assets/icons8-rocket.png",
       title: "Faster Transactions",
-      description:
-        "Enable instant cross-border payments and near-real-time processing.",
+      description: "Enable instant cross-border payments and near-real-time processing to keep your business moving at the speed of light."
     },
     {
       id: 4,
       icon: "/assets/img/cdn-assets/icons8-money-bag.png",
       title: "Cost Reduction",
-      description:
-        "Eliminates intermediaries and reduces operational and transactional costs.",
+      description: "Eliminate unnecessary intermediaries and drastically reduce operational and transactional costs for your enterprise."
     },
     {
       id: 5,
       icon: "/assets/img/cdn-assets/icons8-bank-building.png",
       title: "Financial Inclusion",
-      description:
-        "Provides access to banking services for the unbanked and underbanked populations.",
+      description: "Provide seamless access to banking services for the unbanked and underbanked populations across the globe."
     },
     {
       id: 6,
       icon: "/assets/img/cdn-assets/flaticon-4712027.png",
       title: "Smart Automation",
-      description:
-        "Leverages smart contracts to automate processes and reduce manual errors.",
-    },
+      description: "Leverage intelligent smart contracts to automate complex processes and eliminate manual errors efficiently."
+    }
   ];
 
+  // Split features for the 2-column masonry on the right
+  const col1 = featuresData.filter((_, i) => i % 2 === 0);
+  const col2 = featuresData.filter((_, i) => i % 2 !== 0);
+
   return (
-    <section>
-      <div
-        className="overflow-hidden space light-bg"
-        data-aos="fade-up"
-        data-aos-duration="1000"
-      >
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-9">
-              <div className="title-area feature-5-titlebox text-center mb-55">
-                <span
-                  className="sub-title extra-sub text-anime-style-2"
-                  data-aos="zoom-in"
-                  data-aos-duration="800"
-                  data-aos-delay="100"
-                >
-                  Our Features
-                </span>
-                {/* UPDATED: Title and description to be more generic and on-brand */}
-                <h2
-                  className="sec-title text-white text-anime-style-3"
-                  data-aos="zoom-in"
-                  data-aos-duration="1000"
-                  data-aos-delay="200"
-                >
-                  Innovative Solutions for Modern Business
-                </h2>
-                <p
-                  className="text-white"
-                  data-aos="fade-up"
-                  data-aos-duration="1000"
-                  data-aos-delay="300"
-                >
-                  Techland IT Solutions is dedicated to being the best
-                  technology partner for your business. Our teams collaborate,
-                  brainstorm, and develop leading strategies to create digital
-                  solutions that are engaging, intuitive, and innovative. We
-                  capture the essence of your business through a blend of
-                  essential design patterns and sophisticated technology,
-                  ensuring your digital presence is not just functional, its
-                  exceptional.
-                </p>
+    <section className="features-section">
+      <div className="features-bg"></div>
+
+      <div className="container">
+        <div className="features-split-layout">
+
+          {/* Left: Sticky Branding & Aesthetic Hero Box */}
+          <div className="features-left-wrapper">
+            <div className="features-left-sticky" data-aos="fade-right">
+              {/* Aesthetic Particles */}
+              <div className="left-particles">
+                <div className="particle p-1"></div>
+                <div className="particle p-2"></div>
               </div>
+
+              <span className="features-tag">Productivity Powered</span>
+              <h2 className="features-heading">
+                Innovative
+                <span>Solutions for</span>
+                Modern Business
+              </h2>
+              <p className="features-desc">
+                Techland IT Solutions specializes in delivering exceptional digital
+                experiences. We blend essential design patterns with sophisticated
+                technology to ensure your digital presence is not just functional,
+                it's truly exceptional.
+              </p>
             </div>
           </div>
-        </div>
 
-        <div className="feature-area5">
-          <div className="container">
-            <div className="row gy-4 justify-content-center">
-              {/* Map over the featuresData array to create feature cards */}
-              {featuresData.map((feature, index) => (
-                <div
-                  className="col-xxl-2 col-xl-3 col-lg-3 col-md-6 feature_wrapp"
-                  key={feature.id}
-                  data-aos="flip-left"
-                  data-aos-duration="1000"
-                  data-aos-delay={index * 100}
-                >
-                  <div className="feature-item style-5 text-center">
-                    <div className="feature_icon">
-                      <img src={feature.icon} alt={`${feature.title} Icon`} />
+          {/* Right: Continuously Scrolling Feature Cards */}
+          <div className="features-right-grid">
+
+            <div className="feature-col-wrapper col-up">
+              <div className="feature-col-inner">
+                {[...col1, ...col1, ...col1].map((f, i) => (
+                  <div
+                    key={`${f.id}-${i}`}
+                    className="feature-card-rich"
+                  >
+                    <div className="icon-wrapper-rich">
+                      <img src={f.icon} alt={f.title} />
                     </div>
-                    <div className="feature_content">
-                      <h3 className="box-title text-white">{feature.title}</h3>
-                      {/* <p className="sec-text">{feature.description}</p> */}
-                    </div>
+                    <h3>{f.title}</h3>
+                    <p>{f.description}</p>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            <div className="feature-col-wrapper col-down">
+              <div className="feature-col-inner">
+                {[...col2, ...col2, ...col2].map((f, i) => (
+                  <div
+                    key={`${f.id}-${i}`}
+                    className="feature-card-rich"
+                  >
+                    <div className="icon-wrapper-rich">
+                      <img src={f.icon} alt={f.title} />
+                    </div>
+                    <h3>{f.title}</h3>
+                    <p>{f.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

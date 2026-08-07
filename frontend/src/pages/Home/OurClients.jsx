@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 const processBg = "/assets/img/bg/process-1-3-bg.jpg";
-import api from "../../services/api";
-import config from "../../config";
+import clientsData from "./clientsData";
+import useApiWithFallback, { resolveImageUrl } from "../../utils/useApiWithFallback";
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,29 +12,14 @@ import "swiper/css";
 
 const OurClients = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [brandData, setBrandData] = useState([]);
-  const backendUrl = config.ASSETS_URL;
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const { data } = await api.get("/clients");
-        // Filter active clients and map to correct structure
-        const activeClients = data
-          .filter(c => c.isActive !== false)
-          .map(c => ({
-            id: c._id,
-            name: c.name,
-            img: c.logo.startsWith("http") ? c.logo : `${backendUrl}${c.logo}`
-          }));
-        setBrandData(activeClients);
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-      }
-    };
-
-    fetchClients();
-  }, []);
+  // Logos uploaded through the admin panel take over as soon as the API is
+  // reachable; otherwise the bundled logos keep the section populated.
+  const { items: brandData } = useApiWithFallback(
+    "/clients",
+    (c) => ({ id: c._id, name: c.name, img: resolveImageUrl(c.logo) }),
+    clientsData
+  );
 
   return (
     <div>
@@ -62,6 +47,9 @@ const OurClients = () => {
             <div className="col-lg-9">
               <div>
                 <Swiper
+                  // Re-initialise when the API swaps the slide set in, so loop
+                  // mode is recalculated for the new slide count.
+                  key={brandData.length}
                   modules={[Autoplay]}
                   spaceBetween={20}
                   slidesPerView={1}

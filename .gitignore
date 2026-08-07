@@ -1,1 +1,11 @@
 node_modules
+
+# Local environment files — never commit real credentials.
+# .env.example and .env.production (public API URLs only) stay tracked.
+.env
+.env.local
+.env.*.local
+
+# Build output
+.vite
+*.log

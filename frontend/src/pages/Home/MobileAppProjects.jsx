@@ -1,87 +1,34 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 
 // Swiper styles
 import "swiper/css";
-import "swiper/css/effect-coverflow";
-import "swiper/css/navigation";
 
 import api from "../../services/api";
-import { useState, useEffect } from "react";
 import config from "../../config";
 
-const staticMobileData = [
-  {
-    id: 1,
-    imageUrl: "/assets/img/mobile_projects/1.png",
-    title: "Analysis of Security",
-    category: "Technology",
-    link: "#",
-  },
-  {
-    id: 2,
-    imageUrl: "/assets/img/mobile_projects/2.png",
-    title: "UiXi Design",
-    category: "Development",
-    link: "#",
-  },
-  {
-    id: 3,
-    imageUrl: "/assets/img/mobile_projects/3.png",
-    title: "Frontend Development",
-    category: "App Design",
-    link: "#",
-  },
-  {
-    id: 4,
-    imageUrl: "/assets/img/mobile_projects/4.png",
-    title: "WordPress Development",
-    category: "Mobile",
-    link: "#",
-  },
-  {
-    id: 5,
-    imageUrl: "/assets/img/mobile_projects/5.png",
-    title: "App Development",
-    category: "Software",
-    link: "#",
-  },
-  {
-    id: 6,
-    imageUrl: "/assets/img/mobile_projects/6.png",
-    title: "UiXi Design",
-    category: "Security",
-    link: "#",
-  },
-  {
-    id: 7,
-    imageUrl: "/assets/img/mobile_projects/7.png",
-    title: "Frontend Development",
-    category: "Technology",
-    link: "#",
-  },
-  {
-    id: 8,
-    imageUrl: "/assets/img/mobile_projects/8.png",
-    title: "WordPress Development",
-    category: "Development",
-    link: "#",
-  },
-  {
-    id: 9,
-    imageUrl: "/assets/img/mobile_projects/9.png",
-    title: "App Development",
-    category: "Software",
-    link: "#",
-  },
-  {
-    id: 10,
-    imageUrl: "/assets/img/mobile_projects/10.png",
-    title: "Advanced Development",
-    category: "Enterprise",
-    link: "#",
-  },
+/**
+ * The app screenshots, with the project each one belongs to.
+ *
+ * Nothing is ever drawn on top of a screen. The project name sits above the
+ * device and lights up when that phone is the centred one.
+ *
+ * Names were read off the screenshots themselves — 4.png shows a home-services
+ * category grid with no visible brand, so it carries a descriptive label until
+ * someone confirms the real product name.
+ */
+const staticMobileShots = [
+  { src: "/assets/img/mobile_projects/1.png",  name: "Zenfoo" },
+  { src: "/assets/img/mobile_projects/2.png",  name: "Best Seeds" },
+  { src: "/assets/img/mobile_projects/3.png",  name: "Market Yatra" },
+  { src: "/assets/img/mobile_projects/4.png",  name: "Home Services" },
+  { src: "/assets/img/mobile_projects/5.png",  name: "SAPID" },
+  { src: "/assets/img/mobile_projects/6.png",  name: "Temple City" },
+  { src: "/assets/img/mobile_projects/7.png",  name: "Yuva Rider" },
+  { src: "/assets/img/mobile_projects/8.png",  name: "SAPID" },
+  { src: "/assets/img/mobile_projects/9.png",  name: "TRUSTlab" },
+  { src: "/assets/img/mobile_projects/10.png", name: "Abhisree Foundation" },
 ];
 
 const MobileAppProjects = () => {
@@ -92,11 +39,13 @@ const MobileAppProjects = () => {
     const fetchProjects = async () => {
       try {
         const { data } = await api.get("/projects");
-        // Filter for mobile-like platforms if available, or just any new ones
-        setDynamicProjects(data.filter(p =>
-          p.isActive !== false &&
-          (p.platform === "Android" || p.platform === "iOS")
-        ));
+        setDynamicProjects(
+          data.filter(
+            (p) =>
+              p.isActive !== false &&
+              (p.platform === "Android" || p.platform === "iOS")
+          )
+        );
       } catch (error) {
         console.error("Error fetching mobile projects:", error);
       }
@@ -104,172 +53,24 @@ const MobileAppProjects = () => {
     fetchProjects();
   }, []);
 
-  const combinedProjects = [
-    ...dynamicProjects.map(p => ({
+  const shots = useMemo(() => {
+    const fromApi = dynamicProjects.map((p) => ({
       id: p._id,
-      imageUrl: p.image.startsWith("http") ? p.image : `${backendUrl}${p.image}`,
-      title: p.title,
-      category: p.category || "Mobile App",
-      link: `/portfolio/${(p.category || "General").toLowerCase().replace(/ /g, "-")}/${p._id}`
-    })),
-    ...staticMobileData
-  ];
+      src: p.image?.startsWith("http") ? p.image : `${backendUrl}${p.image}`,
+      name: p.title || "",
+    }));
+
+    const fromStatic = staticMobileShots.map((shot, i) => ({
+      id: `s-${i}`,
+      src: shot.src,
+      name: shot.name || "",
+    }));
+
+    return [...fromApi, ...fromStatic];
+  }, [dynamicProjects, backendUrl]);
 
   return (
-    <div className="case-area3 position-relative overflow-hidden space">
-      <style>{`
-        .case-slider3 {
-          padding:30px;
-          overflow: visible !important;
-        }
-
-        .case-slider3 .swiper-slide {
-          width: 300px !important; /* Force width */
-          height: auto;
-          transition: all 0.4s ease;
-        }
-
-        .case-box3 {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-        }
-
-        .case-slider3 .case-img {
-          width: 100% !important;
-          height: 570px !important; /* Force "short" height */
-          position: relative;
-          overflow: hidden;
-        }
-
-        /* Override active slide size from style.css */
-        .case-slider3 .swiper-slide.swiper-slide-active .case-img {
-          width: 100% !important;
-          height: 600px !important;
-        }
-
-        .case-img img {
-          width: 100% !important;
-          height: 100% !important;
-          display: block;
-          object-fit: cover;
-          border-radius: 24px;
-          transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .case-img:hover img {
-          transform: scale(1.05);
-        }
-
-        .case-content {
-          position: absolute;
-          bottom: 25px;
-          left: 15px;
-          right: 15px;
-          padding: 20px 15px;
-          background: #ffffff;
-          border-radius: 12px;
-          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-          opacity: 0;
-          visibility: hidden;
-          transform: translateY(15px);
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          text-align: center;
-          z-index: 2;
-        }
-
-        .case-img:hover .case-content {
-          opacity: 1;
-          visibility: visible;
-          transform: translateY(0);
-        }
-
-        .case-title {
-          margin: 0 0 5px 0;
-          font-size: 18px;
-          font-weight: 700;
-          font-family: "Play", sans-serif;
-        }
-
-        .case-title a {
-          color: #1a1a1a;
-          text-decoration: none;
-        }
-
-        .case-categ {
-          color: #163198;
-          font-size: 12px;
-          font-weight: 700;
-          display: block;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
-          margin-bottom: 5px;
-        }
-
-        .sec-title {
-          font-family: "Play", sans-serif;
-          font-weight: 700;
-        }
-
-        .icon-box {
-          display: flex;
-          gap: 20px;
-          align-items: center;
-          justify-content: center;
-          margin-top: 50px;
-        }
-
-        .slider-arrow {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 50%;
-          width: 56px;
-          height: 56px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          color: #163198;
-          font-size: 20px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .slider-arrow:hover {
-          background: #163198;
-          color: #ffffff;
-          border-color: #163198;
-          transform: translateY(-2px);
-          box-shadow: 0 10px 20px rgba(22, 49, 152, 0.2);
-        }
-        .case-box3 .case-img:hover .case-content {
-          bottom: 24px;
-          opacity: 1;
-          visibility: visible;
-          width: 85%;
-        }
-
-        @media (max-width: 768px) {
-          .case-slider3 .swiper-slide {
-            width: 260px;
-          }
-
-          .case-img {
-            height: 500px;
-          }
-
-          .case-content {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            background: rgba(255, 255, 255, 0.98);
-            bottom: 20px;
-          }
-        }
-      `}</style>
-
+    <div className="mp-area position-relative overflow-hidden space">
       <div className="container th-container">
         {/* Title */}
         <div className="title-area text-center" data-aos="fade-up">
@@ -281,48 +82,37 @@ const MobileAppProjects = () => {
           </h2>
         </div>
 
-        {/* Swiper */}
-        <div className="container px-5">
+        {/* Devices */}
+        <div className="mp-stage">
           <Swiper
-            modules={[Autoplay, EffectCoverflow, Navigation]}
-            effect="coverflow"
+            modules={[Autoplay]}
             grabCursor
-            centeredSlides
             loop={true}
+            centeredSlides
             slidesPerView={"auto"}
-            spaceBetween={50}
-            autoplay={{
-              delay: 3000,
-              disableOnInteraction: false,
-            }}
-            navigation={{
-              nextEl: ".case-next",
-              prevEl: ".case-prev",
-            }}
-            coverflowEffect={{
-              rotate: -10,
-              stretch: 0,
-              depth: 100,
-              modifier: 1,
-              slideShadows: false,
-            }}
-            className="case-slider3"
+            spaceBetween={34}
+            speed={700}
+            autoplay={{ delay: 3200, disableOnInteraction: false }}
+            className="mp-swiper"
           >
-            {combinedProjects.map((project) => (
-              <SwiperSlide key={project.id}>
-                <div className="case-box3 gsap-cursor">
-                  <div className="case-img position-relative">
+            {shots.map((shot) => (
+              <SwiperSlide key={shot.id} className="mp-slide">
+                <div className="mp-item">
+                  {/* Name above the phone, always visible. The centred one
+                      lights up in the brand gradient; the rest stay grey, so
+                      the row itself tells you which project is in focus. */}
+                  <h3 className="mp-name">{shot.name || " "}</h3>
+
+                  <div className="mp-device">
                     <img
-                      src={project.imageUrl}
-                      alt={project.title}
+                      src={shot.src}
+                      alt={
+                        shot.name
+                          ? `${shot.name} mobile app by Techland IT Solutions`
+                          : "Mobile app screen by Techland IT Solutions"
+                      }
                       loading="lazy"
                     />
-                    <div className="case-content">
-                      <span className="case-categ">{project.category}</span>
-                      <h3 className="case-title">
-                        <a href={project.link}>{project.title}</a>
-                      </h3>
-                    </div>
                   </div>
                 </div>
               </SwiperSlide>
@@ -330,8 +120,141 @@ const MobileAppProjects = () => {
           </Swiper>
         </div>
 
-
+        {/* Quiet footnote: what these were built with. Small, left-aligned and
+            in each tool's own colour, so it reads as a caption rather than
+            competing with the devices above it. */}
+        <ul className="mp-stack" aria-label="Technologies used">
+          <li style={{ "--c": "#61DAFB" }}>
+            <span className="mp-stack-dot" aria-hidden="true" />
+            React Native
+          </li>
+          <li style={{ "--c": "#42A5F5" }}>
+            <span className="mp-stack-dot" aria-hidden="true" />
+            Flutter
+          </li>
+          <li style={{ "--c": "#FF6F4A" }}>
+            <span className="mp-stack-dot" aria-hidden="true" />
+            SwiftUI
+          </li>
+        </ul>
       </div>
+
+      <style>{`
+        /* ============================================================
+           MOBILE MASTERPIECES — devices only.
+
+           No labels, no captions, no hover panels, no glows, no tints,
+           no overlap. Every screen is shown whole, upright and at full
+           colour. The only interaction is a small lift on hover.
+           ============================================================ */
+        .mp-area { position: relative; background: #ffffff; }
+
+        .mp-stage { position: relative; margin-top: 6px; }
+        /* Visible overflow so neighbouring devices aren't clipped mid-slide. */
+        /* Extra vertical padding so the scaled-up centre device has room to
+           grow without colliding with the heading or the controls. */
+        .mp-swiper { overflow: visible !important; padding: 34px 0 26px; }
+        .mp-swiper .swiper-wrapper { align-items: center; }
+
+        .mp-slide {
+          width: 250px !important;
+          height: auto;
+        }
+        @media (max-width: 768px) { .mp-slide { width: 200px !important; } }
+
+        .mp-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        /* The box is pinned to the phone, so the box has to BE the phone:
+           height drives it and the artwork's own ratio sets the width. Left
+           as a full-width flex container, the card would float in the empty
+           space beside the handset. */
+        .mp-device {
+          position: relative;
+          height: 430px;
+          aspect-ratio: 1064 / 2080;
+          width: auto;
+        }
+        @media (max-width: 768px) { .mp-device { height: 350px; } }
+
+        /* ---- Project name, above the phone ----
+           Grey for the phones either side, brand gradient for the one in the
+           middle — so the row shows which project is in focus without an
+           overlay covering the screen you are trying to look at. */
+        .mp-name {
+          margin: 0 0 16px;
+          min-height: 22px;
+          font-family: "Play", sans-serif;
+          font-size: 15.5px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          text-align: center;
+          color: rgba(10, 10, 10, 0.3);
+          transition: color 0.45s ease, transform 0.45s cubic-bezier(0.22,1,0.36,1);
+        }
+        .mp-swiper .swiper-slide-active .mp-name {
+          transform: translateY(-2px);
+          background: linear-gradient(120deg, #163198, #4f46e5 50%, #7c3aed);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
+        }
+
+        /* ---- built-with footnote ---- */
+        .mp-stack {
+          list-style: none;
+          margin: 26px 0 0;
+          padding: 0;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px 22px;
+          /* Bottom-left of the section, deliberately not centred — a caption
+             sits at the edge of the thing it describes. */
+          justify-content: flex-start;
+        }
+        .mp-stack li {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          font-family: ui-monospace, monospace;
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: rgba(10, 10, 10, 0.42);
+          transition: color 0.3s ease;
+        }
+        .mp-stack li:hover { color: rgba(10, 10, 10, 0.72); }
+        .mp-stack-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--c);
+          /* A faint halo in the same colour keeps the dot from looking stuck
+             on, at a size where a plain circle reads as a bullet point. */
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent);
+        }
+        @media (max-width: 575px) {
+          .mp-stack { gap: 8px 16px; margin-top: 22px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .mp-device img,
+          .mp-name,
+          .mp-stack li {
+            transition: none !important;
+          }
+          .mp-swiper .swiper-slide-active .mp-name { transform: none !important; }
+          .mp-device:hover img { transform: none !important; }
+          /* Keep the centre device emphasised, just without the movement. */
+          .mp-swiper .swiper-slide-active .mp-device img { transform: scale(1.12); }
+          .mp-swiper .swiper-slide-active .mp-device:hover img { transform: scale(1.12); }
+        }
+      `}</style>
     </div>
   );
 };

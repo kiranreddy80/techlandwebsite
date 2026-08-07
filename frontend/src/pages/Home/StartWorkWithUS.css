@@ -1,0 +1,393 @@
+/* StartWorkWithUS - Radical Kinetic Split Design */
+.cta-radical-section {
+    position: relative;
+    min-height: 80vh;
+    background: #000000;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 100px 0;
+}
+
+/* Diagonal Background Split */
+.cta-diagonal-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: #6366f1;
+    /* Brand Indigo - Solid block to break the pattern */
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+    z-index: 1;
+}
+
+.cta-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 0;
+}
+
+.container {
+    position: relative;
+    z-index: 5;
+}
+
+.cta-flex-layout {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+/* Left: Typography dominated by bold shapes */
+.cta-text-side {
+    flex: 1;
+    color: #fff;
+}
+
+.cta-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #22c55e;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.status-label {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cta-big-heading {
+    font-size: clamp(50px, 7vw, 100px);
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -5px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+}
+
+.cta-big-heading span {
+    display: block;
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+    color: transparent;
+    transition: all 0.5s ease;
+}
+
+.cta-big-heading:hover span {
+    color: #fff;
+    -webkit-text-stroke: 1.5px transparent;
+}
+
+.cta-description-bold {
+    font-size: 22px;
+    line-height: 1.5;
+    max-width: 500px;
+    color: rgba(255, 255, 255, 0.7);
+    border-left: 4px solid #6366f1;
+    padding-left: 30px;
+    margin-bottom: 50px;
+}
+
+/* Right: Geometric Video Frame with HUD Aesthetics */
+.cta-video-frame {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Glow for Video */
+.video-glow-base {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    z-index: 0;
+    filter: blur(40px);
+}
+
+.video-window {
+    width: 320px;
+    aspect-ratio: 9 / 19.5;
+    background: #000;
+    border-radius: 44px;
+    overflow: hidden;
+    border: 8px solid #1a1a1a;
+    box-shadow: 0 60px 120px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+    transform: perspective(1500px) rotateY(-12deg) rotateX(2deg);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    margin: 0 auto;
+}
+
+/* Phone Notch Decoration */
+.video-window::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 25px;
+    background: #1a1a1a;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    z-index: 10;
+}
+
+.video-window:hover {
+    transform: perspective(1500px) rotateY(0deg) rotateX(0deg) scale(1.05);
+    border-color: #6366f1;
+    box-shadow: 0 40px 100px rgba(99, 102, 241, 0.2);
+}
+
+/* HUD Decorative Elements */
+.hud-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #6366f1;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.top-left {
+    top: -15px;
+    left: -15px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.bottom-right {
+    bottom: -15px;
+    right: -15px;
+    border-left: none;
+    border-top: none;
+}
+
+.tech-marker {
+    position: absolute;
+    font-family: monospace;
+    font-size: 10px;
+    color: #6366f1;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    z-index: 5;
+}
+
+.marker-v {
+    top: 50%;
+    right: -100px;
+    transform: rotate(90deg) translateY(-50%);
+}
+
+.marker-h {
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.video-window video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    transition: opacity 0.5s;
+}
+
+.video-window:hover video {
+    opacity: 1;
+}
+
+/* Scanner Effect on Video */
+.video-scanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 48%, #6366f1 50%, transparent 52%);
+    background-size: 100% 200%;
+    z-index: 3;
+    animation: scan-vertical 4s infinite linear;
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+@keyframes scan-vertical {
+    0% {
+        background-position: 0 100%;
+    }
+
+    100% {
+        background-position: 0 0%;
+    }
+}
+
+/* Modern Button - No gradients, just pure contnast */
+.cta-pure-btn {
+    padding: 24px 60px;
+    background: #fff;
+    color: #000;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cta-pure-btn:hover {
+    background: #6366f1;
+    color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+}
+
+.cta-pure-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.cta-pure-btn:hover svg {
+    transform: translateX(10px);
+}
+
+/* Decorative Background Numbers */
+.bg-giant-text {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    font-size: clamp(100px, 20vw, 350px);
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.02);
+    line-height: 1;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Responsive Perfection */
+@media (max-width: 1200px) {
+    .cta-flex-layout {
+        gap: 40px;
+    }
+
+    .cta-big-heading {
+        font-size: 70px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .cta-flex-layout {
+        flex-direction: column;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .cta-description-bold {
+        margin: 0 auto 50px;
+        border-left: none;
+        border-top: 4px solid #6366f1;
+        padding: 30px 0 0 0;
+        text-align: center;
+        max-width: 600px;
+    }
+
+    .cta-diagonal-bg {
+        display: none;
+    }
+
+    .video-window {
+        transform: none !important;
+        margin: 0 auto;
+        width: 300px;
+    }
+
+    .cta-big-heading {
+        font-size: 56px;
+        line-height: 1;
+        letter-spacing: -2px;
+    }
+
+    .cta-status-indicator {
+        justify-content: center;
+    }
+
+    .tech-marker {
+        display: none;
+    }
+
+    .bg-giant-text {
+        bottom: 0;
+        right: 0;
+        font-size: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cta-big-heading {
+        font-size: 42px;
+        letter-spacing: -1px;
+    }
+
+    .cta-description-bold {
+        font-size: 18px;
+    }
+
+    .cta-pure-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 20px 40px;
+    }
+
+    .cta-radical-section {
+        padding: 80px 0;
+    }
+
+    .video-window {
+        width: 270px;
+        border-radius: 36px;
+    }
+}

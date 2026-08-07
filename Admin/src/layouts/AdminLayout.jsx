@@ -43,7 +43,7 @@ export default function AdminLayout() {
           <button className="sidebar-close" onClick={closeSidebar}>
             &times;
           </button>
-        </div>
+        </div>        
 
         <nav className="admin-nav">
           {navItems.map((item) => (
@@ -73,7 +73,7 @@ export default function AdminLayout() {
             >
               ☰
             </button>
-            <span className="admin-header-title">Admin Dashboard</span>
+            <span classNam e="admin-header-title">Admin Dashboard</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
             <span className="user-name">Welcome, Admin</span>

@@ -32,7 +32,10 @@ const HomeLayout = () => {
       <MobileAppProjects />
       <WebsitesProjects />
       <OurProcess />
-      <OurFeatures />
+      {/* Hidden for now — the copy in here is generic blockchain filler
+          ("immutable transactions", "public ledgers") rather than anything
+          Techland does. Re-enable once it has been rewritten. */}
+      {/* <OurFeatures /> */}
       <StartWorkWithUS />
       <HomeTestimonials />
       <HomeFAQ />

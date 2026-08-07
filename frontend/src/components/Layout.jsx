@@ -4,6 +4,7 @@ import Footer from "./Footer.jsx";
 import GlobalUtilities from "./GlobalUtilities.jsx";
 import SeasonalDecor from "./SeasonalDecor.jsx";
 import WhatsAppFloat from "./WhatsAppFloat.jsx";
+import PageTransition from "./PageTransition.jsx";
 
 function Layout({ setOpenContactModal }) {
   return (
@@ -12,7 +13,10 @@ function Layout({ setOpenContactModal }) {
       <main>
         <SeasonalDecor />
 
-        <Outlet />
+        {/* Animates the swap between tabs — Services, About, Contact, Blog. */}
+        <PageTransition>
+          <Outlet context={{ setOpenContactModal }} />
+        </PageTransition>
       </main>
       <Footer />
       <GlobalUtilities />

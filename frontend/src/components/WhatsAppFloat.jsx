@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import company from "../config/company";
 import "./WhatsAppFloat.css";
 
 const WhatsAppFloat = () => {
@@ -9,11 +10,7 @@ const WhatsAppFloat = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "917842385604";
-  const message = "Hi! I'm interested in your services.";
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-    message
-  )}`;
+  const whatsappUrl = company.whatsapp("Hi! I'm interested in your services.");
 
   return (
     <a

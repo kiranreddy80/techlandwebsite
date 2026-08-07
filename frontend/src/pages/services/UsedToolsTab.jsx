@@ -247,306 +247,268 @@ const toolsData = {
   ],
 };
 
-const TechCard = ({ tool, index, activeTab }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef(null);
+/* ============================================================
+   TOOLS — redesigned
 
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const handleMouseMove = (e) => {
-      if (!isHovered) return;
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = (y - centerY) / 10;
-      const rotateY = (centerX - x) / 10;
-
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-    };
-
-    const handleMouseLeave = () => {
-      card.style.transform =
-        "perspective(1000px) rotateX(0) rotateY(0) translateZ(0)";
-    };
-
-    if (isHovered) {
-      card.addEventListener("mousemove", handleMouseMove);
-      card.addEventListener("mouseleave", handleMouseLeave);
-    }
-
-    return () => {
-      card.removeEventListener("mousemove", handleMouseMove);
-      card.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [isHovered]);
-
-  return (
-    <div
-      className="p-2"
-      style={{
-        animation: `fadeInUp 0.6s ease-out ${index * 0.05}s both`,
-      }}
-    >
-      <div
-        ref={cardRef}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "20px",
-          padding: "30px 20px",
-          border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: isHovered
-            ? `0 20px 60px ${tool.color}40, 0 0 0 1px ${tool.color}60`
-            : "0 8px 32px rgba(0,0,0,0.3)",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          cursor: "pointer",
-          transformStyle: "preserve-3d",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `radial-gradient(circle at 50% 50%, ${tool.color}20 0%, transparent 70%)`,
-            opacity: isHovered ? 1 : 0,
-            transition: "opacity 0.3s ease",
-          }}
-        />
-
-        <div
-          style={{
-            height: "80px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "15px",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <div
-            style={{
-              width: "70px",
-              height: "70px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `linear-gradient(135deg, ${tool.color}20 0%, ${tool.color}10 100%)`,
-              borderRadius: "16px",
-              padding: "12px",
-              transform: isHovered ? "scale(1.1) rotateY(10deg)" : "scale(1)",
-              transition: "transform 0.3s ease",
-            }}
-          >
-            <img
-              src={tool.icon}
-              alt={tool.name}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-                filter: isHovered
-                  ? "drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
-                  : "none",
-              }}
-            />
-          </div>
-        </div>
-
-        <h3
-          style={{
-            fontSize: "15px",
-            fontWeight: "600",
-            color: "#fff",
-            textAlign: "center",
-            margin: 0,
-            position: "relative",
-            zIndex: 1,
-            textShadow: isHovered ? `0 0 20px ${tool.color}80` : "none",
-            transition: "text-shadow 0.3s ease",
-          }}
-        >
-          {tool.name}
-        </h3>
-      </div>
-    </div>
-  );
-};
+   Same data, new presentation. The previous build gave each card
+   its own hover state in React (isHovered per card, a ref each,
+   and a mousemove listener), which re-rendered a grid of 40+ cards
+   on every pointer move. This does the same visual job in CSS.
+   ============================================================ */
 
 const UsedToolsTab = () => {
-  const [activeTab, setActiveTab] = useState("Frontend Development");
+  const categories = Object.keys(toolsData);
+  const [activeTab, setActiveTab] = useState(categories[0]);
+  const [seen, setSeen] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setSeen(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const tools = toolsData[activeTab] || [];
 
   return (
-    <div
-      style={{
-        background:
-          "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)",
-        minHeight: "100vh",
-        padding: "80px 20px",
-        position: "relative",
-        overflow: "hidden",
-      }}
+    <section
+      className={`tl-section ${seen ? "is-in" : ""}`}
+      ref={sectionRef}
+      aria-label="Technologies we use"
     >
-      {/* Animated background particles */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background:
-            "radial-gradient(circle at 20% 50%, rgba(14, 89, 242, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
-          pointerEvents: "none",
-        }}
-      />
+      <div className="tl-container">
+        <header className="tl-head">
+          <span className="tl-eyebrow">
+            <span className="tl-eyebrow-line" aria-hidden="true" />
+            Our toolkit
+          </span>
+          <h2 className="tl-title">
+            Built with what <span className="tl-title-hl">actually holds up</span>.
+          </h2>
+        </header>
 
-      <div
-        style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "60px" }}>
-          <div
-            style={{
-              display: "inline-block",
-              background: "linear-gradient(90deg, #0E59F2, #6366F1)",
-              padding: "8px 24px",
-              borderRadius: "50px",
-              marginBottom: "20px",
-              fontSize: "14px",
-              fontWeight: "600",
-              letterSpacing: "2px",
-              color: "#fff",
-              boxShadow: "0 4px 20px rgba(14, 89, 242, 0.4)",
-            }}
-          >
-            TECHNOLOGIES
-          </div>
-          <h1
-            style={{
-              fontSize: "48px",
-              fontWeight: "700",
-              color: "#fff",
-              margin: "0 0 15px 0",
-              background: "linear-gradient(90deg, #fff, #a0a0a0)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            Technologies We Use
-          </h1>
-          <p
-            style={{
-              color: "#888",
-              fontSize: "18px",
-              maxWidth: "600px",
-              margin: "0 auto",
-            }}
-          >
-            Cutting-edge tools and frameworks powering modern development
-          </p>
-        </div>
-
-        {/* Tabs Navigation */}
-        <div className="row justify-content-center mb-50">
-          <div className="col-lg-12">
-            <div className="tech-tabs-wrapper text-center">
-              {Object.keys(toolsData).map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveTab(category)}
-                  className={`tech-tab-btn ${
-                    activeTab === category ? "active" : ""
-                  }`}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    borderBottom:
-                      activeTab === category
-                        ? "2px solid #0E59F2"
-                        : "2px solid transparent",
-                    color: activeTab === category ? "#fff" : "#aaa",
-                    padding: "10px 20px",
-                    margin: "0 5px 10px",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    cursor: "pointer",
-                  }}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Tools Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-            gap: "20px",
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-        >
-          {toolsData[activeTab].map((tool, index) => (
-            <TechCard
-              key={index}
-              tool={tool}
-              index={index}
-              activeTab={activeTab}
-            />
+        {/* Tabs */}
+        <div className="tl-tabs" role="tablist" aria-label="Technology categories">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              role="tab"
+              aria-selected={cat === activeTab}
+              className={`tl-tab ${cat === activeTab ? "is-active" : ""}`}
+              onClick={() => setActiveTab(cat)}
+            >
+              <span>{cat}</span>
+              <em>{toolsData[cat].length}</em>
+            </button>
           ))}
         </div>
+
+        {/* Grid — keyed on the tab so the stagger replays on every switch */}
+        <ul className="tl-grid" key={activeTab}>
+          {tools.map((tool, i) => (
+            <li
+              className="tl-item"
+              key={tool.name}
+              style={{ "--i": i, "--brand": tool.color }}
+            >
+              <span className="tl-glow" aria-hidden="true" />
+              <span className="tl-icon">
+                <img src={tool.icon} alt="" aria-hidden="true" loading="lazy" decoding="async" />
+              </span>
+              <span className="tl-name">{tool.name}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        .tl-section {
+          --ink: #0a0a0a;
+          --soft: rgba(10,10,10,0.55);
+          --faint: rgba(10,10,10,0.36);
+          --rule: rgba(10,10,10,0.09);
+          --g1: #163198; --g2: #4f46e5; --g3: #7c3aed;
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          padding: 90px 0 96px;
+          background: linear-gradient(180deg, #ffffff, #fafaff 55%, #ffffff);
+          color: var(--ink);
+        }
+        .tl-container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 1024px) { .tl-container { padding: 0 32px; } }
+
+        .tl-head {
+          display: flex; flex-direction: column; align-items: center;
+          gap: 4px; text-align: center; margin-bottom: 38px;
+        }
+        .tl-eyebrow {
+          display: inline-flex; align-items: center; gap: 10px;
+          font-family: ui-monospace, monospace;
+          font-size: 10.5px; font-weight: 700;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          color: var(--faint);
+        }
+        .tl-eyebrow-line { width: 26px; height: 1px; background: linear-gradient(to right, transparent, var(--g2)); }
+        .tl-title {
+          font-family: "Play", sans-serif;
+          font-weight: 400;
+          font-size: clamp(1.9rem, 3vw + 0.6rem, 2.9rem);
+          line-height: 1.08; letter-spacing: -0.035em;
+          margin: 16px 0 0; text-wrap: balance;
+        }
+        .tl-title-hl {
+          font-weight: 700;
+          background: linear-gradient(135deg, var(--g1), var(--g2) 50%, var(--g3));
+          -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent; color: transparent;
         }
 
-        @media (max-width: 768px) {
-          h1 {
-            font-size: 36px !important;
-          }
+        /* ---- tabs ---- */
+        .tl-tabs {
+          display: flex; flex-wrap: wrap; justify-content: center;
+          gap: 8px; margin-bottom: 40px;
+        }
+        .tl-tab {
+          position: relative;
+          isolation: isolate;
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 11px 18px;
+          border-radius: 999px;
+          border: 1px solid var(--rule);
+          background: #fff;
+          cursor: pointer;
+          font-family: "Play", sans-serif;
+          font-size: 13.5px; font-weight: 620; letter-spacing: -0.01em;
+          color: var(--soft);
+          transition: color 0.3s ease, border-color 0.3s ease,
+                      transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .tl-tab::before {
+          content: "";
+          position: absolute; inset: 0; z-index: -1;
+          border-radius: inherit;
+          background: linear-gradient(120deg, var(--g1), var(--g2) 55%, var(--g3));
+          opacity: 0; transform: scale(0.9);
+          transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        .tl-tab:hover { color: var(--ink); border-color: rgba(79,70,229,0.35); transform: translateY(-1px); }
+        .tl-tab.is-active {
+          color: #fff;
+          border-color: transparent;
+          box-shadow: 0 16px 32px -16px rgba(79,70,229,0.75);
+        }
+        .tl-tab.is-active::before { opacity: 1; transform: scale(1); }
+        .tl-tab em {
+          font-style: normal;
+          font-family: ui-monospace, monospace;
+          font-size: 9.5px; font-weight: 700;
+          padding: 3px 7px; border-radius: 999px;
+          background: rgba(10,10,10,0.06);
+          color: var(--faint);
+          transition: background 0.3s ease, color 0.3s ease;
+        }
+        .tl-tab.is-active em { background: rgba(255,255,255,0.22); color: #fff; }
+
+        /* ---- grid ---- */
+        .tl-grid {
+          list-style: none; margin: 0; padding: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+          gap: 14px;
         }
 
-        @media (max-width: 480px) {
-          div[style*="grid-template-columns"] {
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        .tl-item {
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          background: #fff;
+          border: 1px solid var(--rule);
+          border-radius: 16px;
+          padding: 22px 14px 18px;
+          display: flex; flex-direction: column; align-items: center; gap: 12px;
+          opacity: 0; transform: translateY(14px) scale(0.97);
+          animation: tlIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+          /* Capped so a 40-tool category still finishes quickly. */
+          animation-delay: calc(min(var(--i) * 28ms, 640ms));
+          transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        .tl-section:not(.is-in) .tl-item { animation-play-state: paused; }
+        @keyframes tlIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .tl-item:hover {
+          transform: translateY(-5px);
+          /* Each tool lights up in its own brand colour — the one place
+             per-item colour is justified, since it identifies the tool. */
+          border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+          box-shadow: 0 22px 44px -22px color-mix(in srgb, var(--brand) 60%, transparent);
+        }
+
+        .tl-glow {
+          position: absolute; inset: -30% -20% auto -20%; height: 80%; z-index: -1;
+          background: radial-gradient(closest-side, color-mix(in srgb, var(--brand) 26%, transparent), transparent 72%);
+          opacity: 0; transition: opacity 0.4s ease;
+        }
+        .tl-item:hover .tl-glow { opacity: 1; }
+
+        .tl-icon {
+          width: 46px; height: 46px;
+          display: inline-flex; align-items: center; justify-content: center;
+          transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .tl-item:hover .tl-icon { transform: scale(1.12) rotate(-4deg); }
+        /* Full brand colour at rest. Greyscaling these hid the one thing a
+           visitor is scanning for — which stack you actually work in. */
+        .tl-icon img {
+          max-width: 100%; max-height: 100%;
+          object-fit: contain; display: block;
+          transition: filter 0.4s ease;
+        }
+        .tl-item:hover .tl-icon img {
+          filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--brand) 45%, transparent));
+        }
+
+        .tl-name {
+          font-size: 12.5px; font-weight: 600;
+          letter-spacing: -0.01em;
+          color: rgba(10, 10, 10, 0.72);
+          text-align: center;
+          transition: color 0.35s ease;
+        }
+        .tl-item:hover .tl-name { color: var(--ink); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .tl-item {
+            opacity: 1 !important; transform: none !important;
+            animation: none !important; transition: none !important;
           }
+          .tl-item:hover { transform: none !important; }
+          .tl-icon, .tl-icon img, .tl-name, .tl-tab, .tl-tab::before { transition: none !important; }
+          .tl-item:hover .tl-icon { transform: none !important; }
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 
 export default UsedToolsTab;
-

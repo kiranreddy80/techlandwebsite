@@ -1,260 +1,82 @@
-/* Premium International-Level Page Transition */
+/* ============================================================
+   ROUTE TRANSITION
 
-/* Overlay - Smooth Fade */
-.page-transition-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+   The outgoing page recedes in Z while the incoming one rises
+   toward the viewer, with a progress bar sweeping the top edge.
+   ============================================================ */
+
+.pt-stage {
+  /* A shallow perspective so the Z movement below reads as depth
+     rather than as a plain scale. */
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  will-change: opacity, transform;
 }
 
-.page-transition-overlay.active {
-  opacity: 1;
-  visibility: visible;
+.pt-in {
+  animation: ptIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pt-out {
+  animation: ptOut 0.26s cubic-bezier(0.55, 0, 0.55, 0.2) both;
 }
 
-/* Transition Content */
-.transition-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-}
-
-/* Logo Wrapper with Circle Animation */
-.transition-logo-wrapper {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Animated Circle Background */
-.logo-circle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  animation: rotate 2s linear infinite;
-}
-
-.circle-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.circle-bg {
-  fill: none;
-  stroke: #e3e8ef;
-  stroke-width: 3;
-}
-
-.circle-progress {
-  fill: none;
-  stroke: url(#gradient);
-  stroke-width: 3;
-  stroke-dasharray: 283;
-  stroke-dashoffset: 75;
-  stroke-linecap: round;
-  animation: progress 1.5s ease-in-out infinite;
-}
-
-/* Gradient for circle */
-.circle-svg::before {
-  content: "";
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
+@keyframes ptIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, -90px) scale(0.985);
+    filter: blur(6px);
   }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes progress {
-  0% {
-    stroke-dashoffset: 283;
-  }
-  50% {
-    stroke-dashoffset: 75;
-  }
-  100% {
-    stroke-dashoffset: 283;
-  }
-}
-
-/* Logo in Center */
-.transition-logo {
-  position: relative;
-  z-index: 2;
-  width: 80px;
-  height: auto;
-  animation: logoFloat 2s ease-in-out infinite;
-}
-
-.transition-logo img {
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 4px 12px rgba(11, 89, 219, 0.15));
-}
-
-@keyframes logoFloat {
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-8px) scale(1.02);
-  }
-}
-
-/* Loading Text and Dots */
-.transition-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.loading-dots {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.loading-dots span {
-  width: 8px;
-  height: 8px;
-  background: linear-gradient(135deg, #0b59db 0%, #1e88e5 100%);
-  border-radius: 50%;
-  animation: dotPulse 1.4s ease-in-out infinite;
-}
-
-.loading-dots span:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.loading-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loading-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes dotPulse {
-  0%,
-  100% {
-    transform: scale(1);
+  to {
     opacity: 1;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
+    transform: none;
+    filter: blur(0);
   }
 }
-
-/* Page Content Transitions */
-.page-content-container {
-  min-height: 100vh;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.page-content-container.fade-out {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.page-content-container.fade-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Add gradient definition */
-.circle-progress {
-  stroke: #0b59db;
-}
-
-/* Smooth Rendering */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .transition-logo-wrapper {
-    width: 110px;
-    height: 110px;
+@keyframes ptOut {
+  from {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
   }
-
-  .transition-logo {
-    width: 65px;
-  }
-
-  .circle-bg,
-  .circle-progress {
-    stroke-width: 2.5;
-  }
-
-  .loading-dots span {
-    width: 6px;
-    height: 6px;
+  to {
+    opacity: 0;
+    transform: translate3d(0, -12px, -140px) scale(0.98);
+    filter: blur(8px);
   }
 }
 
-/* Prevent scroll during transition */
-body.transitioning {
-  overflow: hidden;
-}
-
-/* Premium blur effect on background */
-.page-transition-overlay::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(
-    circle at center,
-    rgba(11, 89, 219, 0.03) 0%,
-    transparent 70%
-  );
+/* ---- top progress bar ---- */
+.pt-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 100000;
   pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.pt-bar.is-running { opacity: 1; }
+.pt-bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #163198, #4f46e5 45%, #7c3aed, #a855f7);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.pt-bar.is-running i {
+  animation: ptBar 0.5s cubic-bezier(0.3, 0.8, 0.4, 1) forwards;
+}
+@keyframes ptBar {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Remove tap highlight */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Performance optimization */
-.page-transition-overlay,
-.transition-logo,
-.logo-circle {
-  will-change: transform, opacity;
+@media (prefers-reduced-motion: reduce) {
+  /* The component already short-circuits the swap; make sure nothing
+     animates if the class lands anyway. */
+  .pt-in, .pt-out { animation: none !important; opacity: 1; transform: none; filter: none; }
+  .pt-bar { display: none; }
+  .pt-stage { perspective: none; }
 }

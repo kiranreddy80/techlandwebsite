@@ -22,7 +22,7 @@ export const getCurrentSeason = () => {
     return "Summer"; // June, July, August
   } else if (currentMonth >= 8 && currentMonth <= 10) {
     return "Autumn"; // September, October, November
-  } else {
+  } else {a                                                                                                                                                                                                                                                                                                                                                             
     return "Winter"; // December, January, February
   }
 };

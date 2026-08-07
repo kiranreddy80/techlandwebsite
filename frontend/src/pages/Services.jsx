@@ -1,37 +1,91 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import { getSEO } from "../config/seoConfig";
-import { Link } from "react-router-dom";
+import company from "../config/company";
 import { servicesData } from "./services/servicesData";
+import "./services/ServicesIndex.css";
 
-// 3D Icon mapping for each service (Local paths)
-const serviceIcons = {
-  "mobile-app-development": "/assets/img/service-icons/smartphone.png",
-  "web-development": "/assets/img/service-icons/source-code.png",
-  "digital-marketing": "/assets/img/service-icons/megaphone.png",
-  "custom-software-development": "/assets/img/service-icons/software.png",
-  "ui-ux-design": "/assets/img/service-icons/design.png",
-  "staffing-services": "/assets/img/service-icons/user-group-man-man.png",
+/** Short stack labels per service, so each card says something concrete. */
+const STACKS = {
+  "mobile-app-development": ["Flutter", "React Native", "Swift", "Kotlin"],
+  "web-development": ["React", "Node.js", "Headless CMS", "Core Web Vitals"],
+  "digital-marketing": ["SEO", "Google Ads", "Meta Ads", "Analytics"],
+  "custom-software-development": ["APIs", "Cloud-native", "Integrations"],
+  "ui-ux-design": ["Research", "Prototypes", "Design systems"],
 };
 
-function Services() {
+/** First sentence only — the stored copy runs to a full paragraph. */
+const firstSentence = (text = "") => {
+  const cut = text.indexOf(". ");
+  return cut === -1 ? text : text.slice(0, cut + 1);
+};
+
+/* ------------------------------------------------------------------ hooks */
+
+/** Adds `.is-in` the first time an element enters view. Fires once. */
+const useReveal = (options = {}) => {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setSeen(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15, ...options }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return [ref, seen];
+};
+
+/* ------------------------------------------------------------------- page */
+
+const Services = () => {
   const seo = getSEO("services");
-  const [expandedServices, setExpandedServices] = useState({});
+  const services = servicesData;
 
-  const toggleDescription = (serviceId) => {
-    setExpandedServices((prev) => ({
-      ...prev,
-      [serviceId]: !prev[serviceId],
-    }));
+  const [listRef, listIn] = useReveal();
+  const [howRef, howIn] = useReveal();
+
+  /**
+   * Pointer position as CSS variables, so each card's spotlight and gradient
+   * edge can follow the cursor without a re-render per mouse move.
+   */
+  const trackPointer = (e) => {
+    const card = e.target.closest(".sv-card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
   };
 
-  const truncateText = (text, limit = 120) => {
-    if (text.length <= limit) return text;
-    return text.substring(0, limit) + "...";
-  };
+  const steps = [
+    { n: "01", t: "Discovery", d: "Goals, users and constraints, mapped before a line is written." },
+    { n: "02", t: "Roadmap", d: "Scope, milestones and a plan you can hold us to." },
+    { n: "03", t: "Build", d: "Design and engineering in two-week sprints, staging always live." },
+    { n: "04", t: "Launch", d: "Deploy, monitor, and stay on long after go-live." },
+  ];
 
   return (
-    <>
+    <div className="sv-page">
       <SEO
         title={seo.title}
         description={seo.description}
@@ -39,441 +93,149 @@ function Services() {
         canonical={seo.canonical}
       />
 
-      {/* Breadcrumb Section */}
-      <div
-        className="breadcumb-area style2 bg-smoke4"
-        data-aos="fade-down"
-        data-aos-duration="1000"
-      >
-        <div
-          className="breadcumb-wrapper"
-          style={{ backgroundImage: 'url("/assets/img/bg/breadcumb-bg.jpg")' }}
-        >
-          <div className="container">
-            <div className="breadcumb-content">
-              <h1 className="breadcumb-title">Our Services</h1>
-              <ul className="breadcumb-menu">
-                <li>
-                  <Link to="/">Home</Link>
-                </li>
-                <li>Services</li>
-              </ul>
-            </div>
-          </div>
+      {/* ============================================ hero */}
+      <section className="sv-hero">
+        <div className="sv-hero-bg" aria-hidden="true">
+          <span className="sv-orb sv-orb--a" />
+          <span className="sv-orb sv-orb--b" />
+          <span className="sv-hero-grid" />
         </div>
-      </div>
 
-      {/* Title Section */}
-      <section className="space-top">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              <div
-                className="title-area text-center mb-55"
-                data-aos="fade-up"
-                data-aos-duration="1000"
+        <div className="sv-container">
+          <nav className="sv-crumb" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Services</span>
+          </nav>
+
+          <h1 className="sv-hero-title">
+            Everything it takes to ship,
+            <span className="sv-hero-hl"> under one roof</span>.
+          </h1>
+
+          <p className="sv-hero-lede">
+            Strategy, design, engineering and growth in the same team — so
+            nothing gets lost handing your project between agencies.
+          </p>
+
+          <ul className="sv-hero-meta">
+            <li>
+              <b>{company.stats.clients}</b>
+              <span>Clients served</span>
+            </li>
+            <li>
+              <b>{company.stats.apps}</b>
+              <span>Apps shipped</span>
+            </li>
+            <li>
+              <b>{company.stats.websites}</b>
+              <span>Websites delivered</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* ============================================ services */}
+      <section
+        className={`sv-list ${listIn ? "is-in" : ""}`}
+        ref={listRef}
+        aria-label="Our services"
+      >
+        <div className="sv-container">
+          <div className="sv-grid" onMouseMove={trackPointer}>
+            {services.map((s, i) => (
+              <Link
+                to={`/services/${s.id}`}
+                className="sv-card"
+                key={s.id}
+                style={{ "--i": i }}
               >
-                <span className="sub-title style1 text-anime-style-2">
-                  What We Offer
+                <span className="sv-card-spot" aria-hidden="true" />
+                <span className="sv-card-edge" aria-hidden="true" />
+                <span className="sv-card-n" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-                <h2 className="sec-title text-anime-style-3">
-                  Comprehensive IT Solutions for Your Business
-                </h2>
-                <p className="sec-text mt-3">
-                  From mobile apps to web development, we provide end-to-end
-                  technology solutions that drive growth and innovation.
-                </p>
-              </div>
-            </div>
+
+                <h2 className="sv-card-title">{s.title}</h2>
+                <p className="sv-card-text">{firstSentence(s.description)}</p>
+
+                {STACKS[s.id] && (
+                  <ul className="sv-card-stack">
+                    {STACKS[s.id].map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                )}
+
+                <span className="sv-card-go">
+                  <span>Explore {s.title}</span>
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 10h11M11 5l5 5-5 5" />
+                  </svg>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Services Grid with Beautiful Boxes */}
-      <section className="service-area4 space-bottom overflow-hidden">
-        <div className="container">
-          <div className="row gy-4">
-            {servicesData.map((service, index) => {
-              const isExpanded = expandedServices[service.id];
-              const description = service.description || "";
-              const shouldShowToggle = description.length > 120;
+      {/* ============================================ how it runs */}
+      <section className={`sv-how ${howIn ? "is-in" : ""}`} ref={howRef}>
+        <div className="sv-container">
+          <header className="sv-head">
+            <span className="sv-eyebrow">
+              <span className="sv-eyebrow-line" aria-hidden="true" />
+              However we engage
+            </span>
+            <h2 className="sv-h2">
+              The same four steps, <span className="sv-h2-hl">every time</span>.
+            </h2>
+          </header>
 
-              return (
-                <div
-                  key={service.id}
-                  className="col-md-6 col-lg-4"
-                  data-aos="zoom-in"
-                  data-aos-duration="800"
-                  data-aos-delay={index * 100}
-                >
-                  <div className="service-item sv-card7 sv-card8 th-ani">
-                    <div className="service-img position-relative">
-                      <img
-                        src={service.heroImage}
-                        alt={service.title}
-                        style={{
-                          width: "100%",
-                          height: "250px",
-                          objectFit: "cover",
-                          borderRadius: "15px 15px 0 0",
-                        }}
-                      />
-                      {/* 3D Icon - Local */}
-                      <div
-                        className="service-icon"
-                        style={{
-                          position: "absolute",
-                          bottom: "-30px",
-                          left: "30px",
-                          width: "70px",
-                          height: "70px",
-                          background: "white",
-                          borderRadius: "15px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "0 10px 30px rgba(22, 49, 152, 0.3)",
-                          padding: "8px",
-                        }}
-                      >
-                        <img
-                          src={serviceIcons[service.id]}
-                          alt={service.title}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="service-content sv-content6 text-start pt-3">
-                      {/* White Badge */}
-                      <span
-                        className="badge mb-3"
-                        style={{
-                          background: "#fff",
-                          color: "#163198",
-                          padding: "6px 16px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          border: "1px solid #e2e8f0",
-                        }}
-                      >
-                        {service.category || "IT Services"}
-                      </span>
-                      <h3 className="box-title mb-3">
-                        <Link
-                          to={`/services/${service.id}`}
-                          style={{
-                            color: "#1e293b",
-                            textDecoration: "none",
-                            transition: "color 0.3s ease",
-                          }}
-                        >
-                          {service.title}
-                        </Link>
-                      </h3>
-
-                      {/* Description with Read More/Less */}
-                      <div className="service-description mb-4">
-                        <p className="service-text mb-2">
-                          {isExpanded
-                            ? description
-                            : truncateText(description, 120)}
-                        </p>
-                        {shouldShowToggle && (
-                          <button
-                            onClick={() => toggleDescription(service.id)}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#163198",
-                              cursor: "pointer",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              padding: "0",
-                              textDecoration: "none",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "5px",
-                            }}
-                          >
-                            {isExpanded ? (
-                              <>
-                                Read Less
-                                <i className="fas fa-chevron-up"></i>
-                              </>
-                            ) : (
-                              <>
-                                Read More
-                                <i className="fas fa-chevron-down"></i>
-                              </>
-                            )}
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="service-features mb-4">
-                        <ul
-                          style={{
-                            listStyle: "none",
-                            padding: 0,
-                            margin: 0,
-                          }}
-                        >
-                          {service.details.slice(0, 3).map((detail, idx) => (
-                            <li
-                              key={idx}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                marginBottom: "8px",
-                                fontSize: "14px",
-                                color: "#64748b",
-                              }}
-                            >
-                              <i
-                                className="fas fa-check-circle"
-                                style={{ color: "#163198", fontSize: "16px" }}
-                              ></i>
-                              {detail.subTitle}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <Link
-                        to={`/services/${service.id}`}
-                        className="th-btn style4 th-icon"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        Learn More
-                        <i className="fa-regular fa-arrow-right"></i>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Decorative Shapes */}
-        <div
-          className="shape-mockup jump d-none d-xl-block"
-          data-top="0"
-          data-left="0"
-        >
-          <img src="/assets/img/shape/spider-shape.png" alt="shape" />
-        </div>
-        <div
-          className="shape-mockup jump d-none d-xl-block"
-          data-bottom="0"
-          data-right="0"
-        >
-          <img src="/assets/img/shape/spider-right-shape.png" alt="shape" />
+          <ol className="sv-steps">
+            <span className="sv-steps-rail" aria-hidden="true">
+              <span className="sv-steps-fill" />
+            </span>
+            {steps.map((s, i) => (
+              <li key={s.n} style={{ "--i": i }}>
+                <span className="sv-step-dot" aria-hidden="true" />
+                <span className="sv-step-n">{s.n}</span>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section
-        className="about-area position-relative overflow-hidden space"
-        style={{ background: "#f8f9fa" }}
-        data-aos="fade-up"
-        data-aos-duration="1000"
-      >
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-xl-6">
-              <div className="img-box15 d-flex justify-content-center">
-                <div className="img1 d-none d-md-block">
-                  <img src="/assets/img/normal/aboutt_15_3.png" alt="About" />
-                  <img src="/assets/img/normal/about_15_2.jpg" alt="About" />
-                </div>
-                <div className="img2">
-                  <img src="/assets/img/normal/about_15_3.png" alt="About" />
-                </div>
-              </div>
+      {/* ============================================ CTA */}
+      <section className="sv-cta">
+        <div className="sv-container">
+          <div className="sv-cta-card">
+            <span className="sv-cta-grid" aria-hidden="true" />
+            <div>
+              <h2>Not sure which one you need?</h2>
+              <p>
+                Describe the problem in a paragraph. We'll tell you what it
+                takes — scope, timeline and a number, within two working hours.
+              </p>
             </div>
-
-            <div className="col-xl-6">
-              <div className="about-15-title-box ps-xl-3 ms-xl-5">
-                <div className="title-area mb-20">
-                  <span className="sub-title style1 text-anime-style-2">
-                    Why Choose Us
-                  </span>
-                  <h2 className="sec-title mb-25 text-anime-style-3">
-                    We Deliver Excellence in Every Project
-                  </h2>
-                  <p className="sec-text mb-30">
-                    With years of experience and a dedicated team of experts, we
-                    provide innovative solutions that transform businesses and
-                    drive success.
-                  </p>
-                </div>
-
-                <div className="about-feature-wrap">
-                  <div className="about-feature-list">
-                    <ul>
-                      <li className="wow fadeInUp" data-wow-delay=".4s">
-                        <span className="about-feature-icon">
-                          <img
-                            src="/assets/img/icon/checkmark.svg"
-                            alt="checkmark icon"
-                          />
-                        </span>
-                        Expert Team of Developers & Designers
-                      </li>
-                      <li className="wow fadeInUp" data-wow-delay=".5s">
-                        <span className="about-feature-icon">
-                          <img
-                            src="/assets/img/icon/checkmark.svg"
-                            alt="checkmark icon"
-                          />
-                        </span>
-                        On-Time Project Delivery Guaranteed
-                      </li>
-                      <li className="wow fadeInUp" data-wow-delay=".6s">
-                        <span className="about-feature-icon">
-                          <img
-                            src="/assets/img/icon/checkmark.svg"
-                            alt="checkmark icon"
-                          />
-                        </span>
-                        24/7 Customer Support & Maintenance
-                      </li>
-                      <li className="wow fadeInUp" data-wow-delay=".7s">
-                        <span className="about-feature-icon">
-                          <img
-                            src="/assets/img/icon/checkmark.svg"
-                            alt="checkmark icon"
-                          />
-                        </span>
-                        Competitive Pricing & Flexible Plans
-                      </li>
-                      <li className="wow fadeInUp" data-wow-delay=".8s">
-                        <span className="about-feature-icon">
-                          <img
-                            src="/assets/img/icon/checkmark.svg"
-                            alt="checkmark icon"
-                          />
-                        </span>
-                        Latest Technologies & Best Practices
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-35 wow fadeInUp" data-wow-delay=".9s">
-                  <Link to="/contact" className="th-btn style4 th-icon">
-                    Get Started Today
-                    <i className="fa-regular fa-rocket"></i>
-                  </Link>
-                </div>
-              </div>
+            <div className="sv-cta-actions">
+              <Link to="/contact" className="sv-btn sv-btn--white">
+                Start a project
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 5l5 5-5 5" />
+                </svg>
+              </Link>
+              <a href={company.phone.href} className="sv-btn sv-btn--outline">
+                {company.phone.display}
+              </a>
             </div>
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section
-        className="cta-area space"
-        data-aos="fade-up"
-        data-aos-duration="1000"
-      >
-        <div className="container">
-          <div
-            className="cta-box"
-            style={{
-              background: "linear-gradient(135deg, #163198 0%, #0a1a5e 100%)",
-              padding: "60px 40px",
-              borderRadius: "20px",
-              textAlign: "center",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                <h2
-                  className="h2 mb-3"
-                  style={{ color: "white", fontSize: "36px" }}
-                >
-                  Ready to Transform Your Business?
-                </h2>
-                <p
-                  className="mb-4"
-                  style={{
-                    fontSize: "18px",
-                    color: "rgba(255,255,255,0.9)",
-                    lineHeight: "1.6",
-                  }}
-                >
-                  Let's discuss your project and create a custom solution that
-                  meets your unique needs. Get a free consultation today!
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <Link
-                    to="/contact"
-                    className="th-btn style3"
-                    style={{
-                      background: "white",
-                      color: "#163198",
-                      padding: "15px 35px",
-                      borderRadius: "50px",
-                      fontWeight: "600",
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    Get Free Consultation
-                    <i className="fa-regular fa-comments"></i>
-                  </Link>
-                  <Link
-                    to="/portfolio"
-                    className="th-btn"
-                    style={{
-                      background: "transparent",
-                      color: "white",
-                      padding: "15px 35px",
-                      borderRadius: "50px",
-                      fontWeight: "600",
-                      textDecoration: "none",
-                      border: "2px solid white",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    View Our Work
-                    <i className="fa-regular fa-eye"></i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
+    </div>
   );
-}
+};
 
 export default Services;

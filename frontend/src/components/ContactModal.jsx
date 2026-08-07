@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { X, Mail, Phone, MapPin, ArrowUpRight, Sparkles } from "lucide-react";
 import api from "../services/api";
+import company from "../config/company";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./ContactModal.css";
@@ -13,202 +15,49 @@ const ContactModal = ({ openModal, setOpenModal }) => {
     name: "",
     email: "",
     phone: "",
+    subject: "",
     message: "",
   });
-
-  /* New Validation Logic */
   const [errors, setErrors] = useState({});
 
-  // Seasonal Festival Configuration for India
-  const getSeasonalFestival = () => {
-    const now = new Date();
-    const month = now.getMonth() + 1; // 1-12
-    const day = now.getDate();
-
-    // Define Indian festivals with date ranges and icons
-    const festivals = [
-      {
-        name: "Christmas",
-        startMonth: 12,
-        startDay: 20,
-        endMonth: 12,
-        endDay: 30,
-        icon: "/assets/cdn-images/cdn_c15b8b8c17.png",
-        bgColor: "#c94b4b20",
-      },
-      {
-        name: "New Year",
-        startMonth: 31,
-        startDay: 1,
-        endMonth: 1,
-        endDay: 7,
-        icon: "/assets/icons/party-popper.png",
-        bgColor: "#f093fb20",
-      },
-      {
-        name: "Sankranti",
-        startMonth: 1,
-        startDay: 10,
-        endMonth: 1,
-        endDay: 18,
-        icon: "/assets/cdn-images/cdn_b5ad1593e5.png",
-        bgColor: "#fa709a20",
-      },
-      {
-        name: "Holi",
-        startMonth: 3,
-        startDay: 1,
-        endMonth: 3,
-        endDay: 15,
-        icon: "/assets/icons/holi.png",
-        bgColor: "#ff9a9e20",
-      },
-      {
-        name: "Ugadi",
-        startMonth: 3,
-        startDay: 20,
-        endMonth: 4,
-        endDay: 5,
-        icon: "/assets/cdn-images/cdn_0bb6e1fe94.png",
-        bgColor: "#a8edea20",
-      },
-      {
-        name: "Ramzan",
-        startMonth: 3,
-        startDay: 10,
-        endMonth: 4,
-        endDay: 10,
-        icon: "/assets/cdn-images/cdn_84635920cb.png",
-        bgColor: "#667eea20",
-      },
-      {
-        name: "Independence Day",
-        startMonth: 8,
-        startDay: 10,
-        endMonth: 8,
-        endDay: 20,
-        icon: "/assets/cdn-images/cdn_40f8ebdbf4.png",
-        bgColor: "#ff993320",
-      },
-      {
-        name: "Ganesh Chaturthi",
-        startMonth: 8,
-        startDay: 25,
-        endMonth: 9,
-        endDay: 10,
-        icon: "/assets/icons/ganesh.png",
-        bgColor: "#f6d36520",
-      },
-      {
-        name: "Onam",
-        startMonth: 8,
-        startDay: 20,
-        endMonth: 9,
-        endDay: 5,
-        icon: "/assets/icons/flower-bouquet.png",
-        bgColor: "#ffecd220",
-      },
-      {
-        name: "Dussehra",
-        startMonth: 10,
-        startDay: 1,
-        endMonth: 10,
-        endDay: 15,
-        icon: "/assets/icons/bow-and-arrow.png",
-        bgColor: "#ff6e7f20",
-      },
-      {
-        name: "Diwali",
-        startMonth: 10,
-        startDay: 20,
-        endMonth: 11,
-        endDay: 10,
-        icon: "/assets/icons/diya.png",
-        bgColor: "#f093fb20",
-      },
-    ];
-
-    // Check if current date falls within any festival range
-    for (const festival of festivals) {
-      const isInRange =
-        (month === festival.startMonth && day >= festival.startDay) ||
-        (month === festival.endMonth && day <= festival.endDay) ||
-        (month > festival.startMonth && month < festival.endMonth);
-
-      if (isInRange) {
-        return festival;
-      }
-    }
-
-    // Default icon when no festival
-    return {
-      name: "Contact",
-      icon: "/assets/cdn-images/cdn_3f6838ccc1.png",
-      bgColor: "#667eea20",
-    };
-  };
-
-  const currentFestival = getSeasonalFestival();
-
-  // Handle external modal trigger (from navbar button)
   useEffect(() => {
     if (openModal) {
       setIsOpen(true);
-      if (setOpenModal) {
-        setOpenModal(false); // Reset the trigger
-      }
+      if (setOpenModal) setOpenModal(false);
     }
   }, [openModal, setOpenModal]);
 
   useEffect(() => {
     if (location.pathname === "/") {
-      // Show modal 6 seconds after page load (3.5s loader + 2.5s delay)
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 6000);
+      const timer = setTimeout(() => setIsOpen(true), 6000);
       return () => clearTimeout(timer);
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const handleClose = () => {
     setIsOpen(false);
     setTimeout(() => {
-      setFormData({ name: "", email: "", phone: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       setErrors({});
     }, 300);
   };
 
   const validateForm = () => {
-    let tempErrors = {};
-
-    // Name validation
-    if (!formData.name.trim()) {
-      tempErrors.name = "Full Name is required";
-    } else if (formData.name.trim().length < 2) {
-      tempErrors.name = "Name must be at least 2 characters";
-    } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
-      tempErrors.name = "Name should contain only letters";
-    }
-
-    // Email validation
-    if (!formData.email) {
-      tempErrors.email = "Email Address is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      tempErrors.email = "Invalid email format";
-    }
-
-    // Phone validation (Optional but if present must be valid)
-    if (formData.phone && !/^\d{10,15}$/.test(formData.phone.replace(/\D/g, ""))) {
-      tempErrors.phone = "Phone number must be 10-15 digits";
-    }
-
-    // Message validation
-    if (!formData.message) {
-      tempErrors.message = "Message is required";
-    } else if (formData.message.length < 10) {
-      tempErrors.message = "Message must be at least 10 characters";
-    }
-
+    const tempErrors = {};
+    if (!formData.name.trim()) tempErrors.name = "Required";
+    if (!formData.email) tempErrors.email = "Required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) tempErrors.email = "Invalid email";
+    if (formData.phone && !/^\d{10,15}$/.test(formData.phone.replace(/\D/g, ""))) tempErrors.phone = "10–15 digits";
+    if (!formData.message) tempErrors.message = "Required";
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -216,315 +65,206 @@ const ContactModal = ({ openModal, setOpenModal }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Clear error for specific field
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
+    if (errors[name]) setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    setIsSubmitting(true);
-
     if (!validateForm()) {
-      toast.error("Please fix the highlighted errors.");
-      setIsSubmitting(false);
+      toast.error("Please fill all required fields correctly.");
       return;
     }
-
+    setIsSubmitting(true);
     try {
-      const dataToSend = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || "",
-        subject: "Website Inquiry (Modal)",
-        message: formData.message,
-      };
-
-      await api.post("/contact", dataToSend);
-
-      // Reset form immediately
-      setFormData({ name: "", email: "", phone: "", message: "" });
-      setErrors({});
-
-      toast.success("Message sent successfully! We'll get back to you soon.");
-
-      setTimeout(() => {
-        handleClose();
-      }, 2000);
+      await api.post("/contact", {
+        ...formData,
+        subject: formData.subject || "Website Inquiry (Modal)",
+      });
+      toast.success("Message sent! We'll contact you soon.");
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+      setTimeout(handleClose, 1500);
     } catch (error) {
-      console.error("Error submitting form:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to submit form. Please check your connection and try again.";
-      toast.error(errorMessage);
+      toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
-      e.preventDefault();
-      e.stopPropagation();
-      handleSubmit(e);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <>
-      <div className="contact-modal-overlay" onClick={handleClose}>
-        <div
-          className="contact-modal-container"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button type="button" className="contact-modal-close" onClick={handleClose}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6L18 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+    <div className="cm-overlay" onClick={handleClose} role="dialog" aria-modal="true">
+      <div className="cm-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="cm-close" onClick={handleClose} aria-label="Close">
+          <X size={18} strokeWidth={2} />
+        </button>
 
-          <div className="contact-modal-content">
-            <div className="contact-modal-left">
-              <div className="contact-modal-header">
-                <div
-                  className="contact-modal-icon seasonal-icon"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.15)",
-                    boxShadow: `0 10px 40px ${currentFestival.bgColor}`,
-                  }}
-                >
-                  <img
-                    src={currentFestival.icon}
-                    alt={currentFestival.name}
-                    className="festival-icon-img"
-                  />
-                </div>
-                <h2 className="contact-modal-title">Get In Touch</h2>
-                <p className="contact-modal-subtitle">
-                  {currentFestival.name !== "Contact" && (
-                    <span className="festival-greeting">
-                      Happy {currentFestival.name}! 🎉
-                      <br />
-                    </span>
-                  )}
-                  Let's discuss how we can help bring your vision to life.
-                </p>
-              </div>
-
-              <div className="contact-modal-info">
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <img
-                      src="/assets/icons/email.png"
-                      alt="Email"
-                      width="48"
-                      height="48"
-                      style={{ objectFit: "contain" }}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div>
-                    <h4>Email</h4>
-                    <p>info@techlanditsolutions.com</p>
-                  </div>
-                </div>
-
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <img
-                      src="/assets/icons/phone.png"
-                      alt="Phone"
-                      width="48"
-                      height="48"
-                      style={{ objectFit: "contain" }}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div>
-                    <h4>Phone</h4>
-                    <p>+91 78423 85604</p>
-                  </div>
-                </div>
-
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <img
-                      src="/assets/icons/location.png"
-                      alt="Location"
-                      width="48"
-                      height="48"
-                      style={{ objectFit: "contain" }}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div>
-                    <h4>Location</h4>
-                    <p>Hyderabad, India</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="contact-modal-right">
-              <form
-                onSubmit={handleSubmit}
-                onKeyDown={handleKeyDown}
-                className="contact-form"
-              >
-                <div className="form-group">
-                  <label htmlFor="name">Full Name *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Please enter your name"
-                    className={errors.name ? "error-input" : ""}
-                    disabled={isSubmitting}
-                  />
-                  {errors.name && (
-                    <span
-                      className="error-text"
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "5px",
-                        display: "block",
-                      }}
-                    >
-                      <i className="fas fa-exclamation-circle me-1"></i>{" "}
-                      {errors.name}
-                    </span>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="email">Email Address *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Please enter your email"
-                    className={errors.email ? "error-input" : ""}
-                    disabled={isSubmitting}
-                  />
-                  {errors.email && (
-                    <span
-                      className="error-text"
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "5px",
-                        display: "block",
-                      }}
-                    >
-                      <i className="fas fa-exclamation-circle me-1"></i>{" "}
-                      {errors.email}
-                    </span>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="phone">Phone Number</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="Please enter your mobile number"
-                    className={errors.phone ? "error-input" : ""}
-                    disabled={isSubmitting}
-                  />
-                  {errors.phone && (
-                    <span
-                      className="error-text"
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "5px",
-                        display: "block",
-                      }}
-                    >
-                      <i className="fas fa-exclamation-circle me-1"></i>{" "}
-                      {errors.phone}
-                    </span>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="message">Your Message *</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Tell us about your project..."
-                    rows="3"
-                    className={errors.message ? "error-input" : ""}
-                    disabled={isSubmitting}
-                  ></textarea>
-                  {errors.message && (
-                    <span
-                      className="error-text"
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "5px",
-                        display: "block",
-                      }}
-                    >
-                      <i className="fas fa-exclamation-circle me-1"></i>{" "}
-                      {errors.message}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="contact-submit-btn"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="spinner"></span>
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send Message</span>
-                      <img
-                        src="/assets/icons/paper-plane.png"
-                        alt="Send"
-                        width="22"
-                        height="22"
-                        style={{
-                          objectFit: "contain",
-                          display: "inline-block",
-                        }}
-                        loading="lazy"
-                      />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+        <aside className="cm-aside">
+          <div className="cm-aside-bg" aria-hidden="true">
+            <div className="cm-aside-mesh" />
+            <div className="cm-aside-grid" />
+            <div className="cm-aside-orb cm-aside-orb--a" />
+            <div className="cm-aside-orb cm-aside-orb--b" />
           </div>
-        </div>
+
+          <div className="cm-aside-top">
+            <div className="cm-eyebrow">
+              <Sparkles size={12} className="cm-eyebrow-spark" />
+              <span>Let’s build together</span>
+            </div>
+            <h2 className="cm-title">
+              Let’s start{" "}
+              <span className="cm-title-hl">something great</span>
+              <span className="cm-title-dot">.</span>
+            </h2>
+            <p className="cm-lede">
+              Tell us about your project. We’ll get back to you within one business day with scope, timeline and a clear next step.
+            </p>
+          </div>
+
+          <ul className="cm-info">
+            <li>
+              <span className="cm-info-ico"><Mail size={14} strokeWidth={1.7} /></span>
+              <div>
+                <span className="cm-info-l">Email</span>
+                <a className="cm-info-v" href={company.email.href}>
+                  {company.email.primary}
+                </a>
+              </div>
+            </li>
+            <li>
+              <span className="cm-info-ico"><Phone size={14} strokeWidth={1.7} /></span>
+              <div>
+                <span className="cm-info-l">Call</span>
+                <a className="cm-info-v" href={company.phone.href}>
+                  {company.phone.display}
+                </a>
+              </div>
+            </li>
+            <li>
+              <span className="cm-info-ico"><MapPin size={14} strokeWidth={1.7} /></span>
+              <div>
+                <span className="cm-info-l">Studio</span>
+                <a
+                  className="cm-info-v"
+                  href={company.maps.place}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {company.address.short}
+                </a>
+              </div>
+            </li>
+          </ul>
+
+          <p className="cm-foot-meta">
+            <span>One studio</span>
+            <span aria-hidden="true">·</span>
+            <span>Global by default</span>
+          </p>
+        </aside>
+
+        <section className="cm-form-wrap">
+          <header className="cm-form-head">
+            <h3 className="cm-form-title">Request a quote</h3>
+            <p className="cm-form-sub">A few quick details and we’ll be in touch.</p>
+          </header>
+
+          <form onSubmit={handleSubmit} className="cm-form" noValidate>
+            <div className="cm-grid">
+              <Field
+                label="Your name"
+                required
+                error={errors.name}
+                input={
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Jane Doe" autoComplete="name" />
+                }
+              />
+              <Field
+                label="Email"
+                required
+                error={errors.email}
+                input={
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jane@company.com" autoComplete="email" />
+                }
+              />
+              <Field
+                label="Subject"
+                error={null}
+                input={
+                  <input type="text" name="subject" value={formData.subject} onChange={handleChange} placeholder="What are we building?" />
+                }
+              />
+              <Field
+                label="Phone"
+                error={errors.phone}
+                phone
+                input={
+                  <div className="cm-phone">
+                    <span className="cm-phone-cc">
+                      <span className="cm-phone-flag" aria-hidden="true">🇮🇳</span>
+                      <span>+91</span>
+                    </span>
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="98765 43210" maxLength={10} autoComplete="tel" />
+                  </div>
+                }
+              />
+              <Field
+                label="Project details"
+                required
+                error={errors.message}
+                full
+                input={
+                  <textarea name="message" value={formData.message} onChange={handleChange} placeholder="A few lines about your goals, timeline, and any constraints we should know about…" rows={4} />
+                }
+              />
+            </div>
+
+            <div className="cm-form-foot">
+              <p className="cm-form-foot-meta">
+                <span>By submitting, you agree to be contacted by Techland.</span>
+              </p>
+              <button type="submit" className="cm-submit" disabled={isSubmitting}>
+                {isSubmitting ? "Sending…" : "Get a quote"}
+                <ArrowUpRight size={16} strokeWidth={1.8} />
+              </button>
+            </div>
+          </form>
+        </section>
       </div>
-    </>
+    </div>
   );
 };
+
+/**
+ * Underline field with a floating label.
+ *
+ * The label renders AFTER the input so CSS can lift it out of the way, and the
+ * input's own placeholder stays invisible until the field is focused — that way
+ * the resting state shows one label instead of a label and a placeholder
+ * competing for the same line.
+ */
+const Field = ({ label, required, error, input, full, phone }) => (
+  <label
+    className={[
+      "cm-field",
+      full ? "is-full" : "",
+      phone ? "is-phone" : "",
+      error ? "has-error" : "",
+    ]
+      .filter(Boolean)
+      .join(" ")}
+  >
+    <div className="cm-field-wrap">
+      {input}
+      <span className="cm-field-label">
+        {label}
+        {required && <span className="cm-field-req" aria-hidden="true">*</span>}
+      </span>
+      <span className="cm-field-bar" aria-hidden="true" />
+    </div>
+    {error && <span className="cm-field-err">{error}</span>}
+  </label>
+);
 
 export default ContactModal;

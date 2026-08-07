@@ -1,180 +1,239 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../../components/SEO";
 import { getSEO } from "../../config/seoConfig";
-import { blogPosts as importedBlogPosts } from "./blogData";
+import company from "../../config/company";
+import { blogPosts } from "./blogData";
+import "./Blogs.css";
+
+/** Adds `.is-in` the first time an element enters view. Fires once. */
+const useReveal = (options = {}) => {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setSeen(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12, ...options }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return [ref, seen];
+};
 
 const Blogs = () => {
-  const seo = getSEO("blogs");
-  // Transform the imported blog data to match the format expected by the component
-  const transformedBlogPosts = importedBlogPosts.map((post) => ({
-    id: post.id,
-    title: post.title,
-    excerpt: post.fullDescription,
-    date: post.date,
-    readTime: post.readTime,
-    image: post.imageUrl,
-    slug: post.title
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, ""),
-    category: post.category,
-    author: post.author,
-  }));
+  const seo = getSEO("blogs") || getSEO("home");
+  const [filter, setFilter] = useState("All");
+  const [listRef, listIn] = useReveal();
 
-  // State for search and filtering
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredPosts, setFilteredPosts] = useState(transformedBlogPosts);
+  /** Newest first, so the AI pieces lead. */
+  const posts = useMemo(
+    () => [...blogPosts].sort((a, b) => new Date(b.date) - new Date(a.date)),
+    []
+  );
 
-  // Handle search input change
-  const handleSearch = (e) => {
-    const term = e.target.toLowerCase();
-    setSearchTerm(term);
+  const categories = useMemo(() => {
+    const set = new Set();
+    posts.forEach((p) => (p.category || []).forEach((c) => set.add(c)));
+    return ["All", ...Array.from(set).sort()];
+  }, [posts]);
 
-    // Filter blog posts based on search term
-    const filtered = transformedBlogPosts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(term) ||
-        post.excerpt.toLowerCase().includes(term) ||
-        (post.category &&
-          post.category.some((cat) => cat.toLowerCase().includes(term)))
-    );
+  const visible = useMemo(
+    () =>
+      filter === "All"
+        ? posts
+        : posts.filter((p) => (p.category || []).includes(filter)),
+    [posts, filter]
+  );
 
-    setFilteredPosts(filtered);
+  const [lead, ...rest] = visible;
+
+  /** Pointer position as CSS variables — no re-render per mouse move. */
+  const trackPointer = (e) => {
+    const card = e.target.closest(".bl-card, .bl-lead");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
   };
 
   return (
-    <div>
+    <div className="bl-page">
       <SEO
         title={seo.title}
         description={seo.description}
         keywords={seo.keywords}
         canonical={seo.canonical}
       />
-      {/* Breadcrumb Section */}
-      <div
-        className="breadcumb-area style2 bg-smoke4"
-        data-aos="fade-down"
-        data-aos-duration="1000"
-      >
-        <div
-          className="breadcumb-wrapper"
-          style={{ backgroundImage: 'url("assets/img/bg/breadcumb-bg.jpg")' }}
-        >
-          <div className="container">
-            <div className="breadcumb-content">
-              <h1 className="breadcumb-title">Blogs</h1>
-              <ul className="breadcumb-menu">
-                <li>
-                  <Link to="/">Home</Link>
-                </li>
-                <li>Blogs</li>
-              </ul>
-            </div>
+
+      {/* ============================================ hero */}
+      <section className="bl-hero">
+        <div className="bl-hero-bg" aria-hidden="true">
+          <span className="bl-orb bl-orb--a" />
+          <span className="bl-orb bl-orb--b" />
+          <span className="bl-hero-grid" />
+        </div>
+
+        <div className="bl-container">
+          <nav className="bl-crumb" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Journal</span>
+          </nav>
+
+          <h1 className="bl-hero-title">
+            What we've learned
+            <span className="bl-hero-hl"> building it</span>.
+          </h1>
+
+          <p className="bl-hero-lede">
+            Notes from real projects — what worked, what cost more than it
+            should have, and what we'd do differently. Written by the people
+            who shipped it.
+          </p>
+
+          <div className="bl-filters" role="tablist" aria-label="Filter by topic">
+            {categories.map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="tab"
+                aria-selected={c === filter}
+                className={`bl-filter ${c === filter ? "is-active" : ""}`}
+                onClick={() => setFilter(c)}
+              >
+                {c}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Blog Section with Search */}
+      {/* ============================================ posts */}
       <section
-        className="blog-area space space-extra2-bottom"
-        data-aos="fade-up"
-        data-aos-duration="1000"
+        className={`bl-list ${listIn ? "is-in" : ""}`}
+        ref={listRef}
+        aria-live="polite"
       >
-        <div className="container">
-          <div className="blog-area">
-            {/* Blog Posts Grid */}
-            <div className="service-wrapper">
-              <div className="row">
-                {filteredPosts.length > 0 ? (
-                  filteredPosts.map((post, index) => (
-                    <div
-                      className="col-xl-4 col-md-6 mb-4"
-                      key={post.id}
-                      data-aos="zoom-in"
-                      data-aos-duration="800"
-                      data-aos-delay={index * 100}
-                    >
-                      <div className="service-box service-style-1 service-style9">
-                        <div className="service-img">
-                          <Link to={`/blogs/${post.id}`}>
-                            <img src={post.image} alt={post.title} />
-                          </Link>
-                        </div>
-                        <div className="service-content sv-content6">
-                          <div className="blog-meta">
-                            <div className="tags-area">
-                              <ul className="d-flex flex-row align-items-center ps-0">
-                                <li className="d-flex align-items-center">
-                                  <img
-                                    src="/assets/icons/user-male-circle.png"
-                                    alt="Author"
-                                    width="18"
-                                    height="18"
-                                    style={{
-                                      objectFit: "contain",
-                                      marginRight: "4px",
-                                    }}
-                                    loading="lazy"
-                                  />
-                                  <a href="#">{post.author}</a>
-                                </li>
-                                <li className="d-flex align-items-center pe-5">
-                                  <img
-                                    src="/assets/icons/calendar.png"
-                                    alt="Date"
-                                    width="18"
-                                    height="18"
-                                    style={{
-                                      objectFit: "contain",
-                                      marginRight: "4px",
-                                    }}
-                                    loading="lazy"
-                                  />
-                                  <a href="#">{post.date}</a>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                          <h3 className="box-title">
-                            <Link to={`/blogs/${post.id}`}>{post.title}</Link>
-                          </h3>
-                          <p className="service-box_text">{post.excerpt}</p>
-                          {post.category && (
-                            <div className="blog-categories mb-2">
-                              {post.category.map((cat, index) => (
-                                <span
-                                  key={index}
-                                  className="badge bg-secondary me-1"
-                                >
-                                  {cat}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          <Link className="th-btn" to={`/blogs/${post.id}`}>
-                            Read More{" "}
-                            <i className="fa-regular fa-arrow-right"></i>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-12 text-center">
-                    <h3>No blog posts found matching your search.</h3>
-                    <button
-                      className="th-btn mt-3"
-                      onClick={() => {
-                        setSearchTerm("");
-                        setFilteredPosts(transformedBlogPosts);
-                      }}
-                    >
-                      View All Posts
-                    </button>
-                  </div>
-                )}
+        {/* key on the filter so the stagger replays on every change */}
+        <div className="bl-container" key={filter} onMouseMove={trackPointer}>
+          {lead && (
+            <Link to={`/blogs/${lead.id}`} className="bl-lead">
+              <span className="bl-spot" aria-hidden="true" />
+
+              <div className="bl-lead-art">
+                <img src={lead.imageUrl} alt={lead.title} loading="eager" />
+                <span className="bl-lead-shade" aria-hidden="true" />
+                <span className="bl-flag">Latest</span>
               </div>
+
+              <div className="bl-lead-body">
+                <div className="bl-tags">
+                  {(lead.category || []).map((c) => (
+                    <em key={c}>{c}</em>
+                  ))}
+                </div>
+                <h2>{lead.title}</h2>
+                <p>{lead.fullDescription}</p>
+                <div className="bl-meta">
+                  <span>{lead.date}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{lead.readTime}</span>
+                  <span className="bl-go" aria-hidden="true">
+                    Read
+                    <svg viewBox="0 0 20 20">
+                      <path d="M4 10h11M11 5l5 5-5 5" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          <div className="bl-grid">
+            {rest.map((p, i) => (
+              <Link
+                to={`/blogs/${p.id}`}
+                className="bl-card"
+                key={p.id}
+                style={{ "--i": i }}
+              >
+                <span className="bl-spot" aria-hidden="true" />
+                <span className="bl-edge" aria-hidden="true" />
+
+                <div className="bl-card-art">
+                  <img
+                    src={p.imageUrl}
+                    alt={p.title}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+
+                <div className="bl-card-body">
+                  <div className="bl-tags">
+                    {(p.category || []).slice(0, 2).map((c) => (
+                      <em key={c}>{c}</em>
+                    ))}
+                  </div>
+                  <h3>{p.title}</h3>
+                  <p>{p.fullDescription}</p>
+                  <div className="bl-meta">
+                    <span>{p.date}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{p.readTime}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {visible.length === 0 && (
+            <p className="bl-empty">Nothing filed under “{filter}” yet.</p>
+          )}
+        </div>
+      </section>
+
+      {/* ============================================ CTA */}
+      <section className="bl-cta">
+        <div className="bl-container">
+          <div className="bl-cta-card">
+            <span className="bl-cta-grid" aria-hidden="true" />
+            <div>
+              <h2>Got a project this applies to?</h2>
+              <p>
+                Send a brief — scope, timeline and a number come back within two
+                working hours.
+              </p>
+            </div>
+            <div className="bl-cta-actions">
+              <Link to="/contact" className="bl-btn bl-btn--white">
+                Start a project
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 5l5 5-5 5" />
+                </svg>
+              </Link>
+              <a href={company.phone.href} className="bl-btn bl-btn--outline">
+                {company.phone.display}
+              </a>
             </div>
           </div>
         </div>

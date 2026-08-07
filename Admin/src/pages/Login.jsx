@@ -11,18 +11,22 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
     try {
-      // For now, allow a hardcoded demo login if backend fails
-      if (email === "admin@techland.com" && password === "admin123") {
-        localStorage.setItem("isAdmin", "true");
-        navigate("/admin/dashboard");
-        return;
-      }
-
+      // The server sets an httpOnly admin_token cookie; this flag only drives
+      // client-side routing, the API is what actually enforces access.
       await loginAdmin({ email, password });
+      localStorage.setItem("isAdmin", "true");
       navigate("/admin/dashboard");
     } catch (err) {
-      setError("Invalid credentials or server error");
+      localStorage.removeItem("isAdmin");
+      if (!err.response) {
+        setError("Cannot reach the API server. Check that the backend is running.");
+      } else if (err.response.status === 401) {
+        setError("Invalid email or password.");
+      } else {
+        setError(err.response.data?.message || "Login failed. Please try again.");
+      }
       console.error(err);
     }
   };

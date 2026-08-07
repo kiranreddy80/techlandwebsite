@@ -15,7 +15,7 @@ const About = lazy(() => import("./pages/about/About.jsx"));
 const Services = lazy(() => import("./pages/Services.jsx"));
 const ServiceDetails = lazy(() =>
   import("./pages/services/ServiceDetails.jsx")
-);
+); 
 const Portfolio = lazy(() => import("./pages/portfolio/Portfolio.jsx"));
 const ProjectDetail = lazy(() => import("./pages/portfolio/ProjectDetail.jsx"));
 const Blogs = lazy(() => import("./pages/blogs/Blogs.jsx"));

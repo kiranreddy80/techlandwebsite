@@ -1,362 +1,244 @@
-import React from "react";
-import { Link } from "react-router-dom";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
-// Import Swiper modules
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import React, { useEffect, useRef, useState } from "react";
+import "./OurProcess.css";
 
-// Define process icon paths
+// Icons
 const processRequirements = "/assets/img/icon/process-requirements.png";
 const processAgreement = "/assets/img/icon/process-agreement.png";
 const processDesign = "/assets/img/icon/process-design.png";
 const processDevelopment = "/assets/img/icon/process-development.png";
 const processTesting = "/assets/img/icon/process-testing.png";
-const processApproval = "/assets/img/icon/process-approval.png";
 const processDeployment = "/assets/img/icon/process-deployment.png";
-const processUx = "/assets/img/icon/process-ux.png";
-const processMonitor = "/assets/img/icon/process-monitor.png";
-const marqueeIcon = "/assets/img/icon/marquee-icon1-3.png";
-const processBg = "/assets/img/bg/process-1-3-bg.jpg";
+
+/**
+ * The road the road markers ride on.
+ *
+ * Hand-authored so the six stops land on exact, evenly spaced points. The
+ * same string is reused three times — the tarmac, the dashed centre line and
+ * the CSS motion path the travelling marker follows — so they can never drift
+ * out of alignment with each other.
+ */
+const ROAD =
+  "M 110 250 C 200 250, 210 110, 300 110 C 390 110, 400 250, 490 250 C 580 250, 590 110, 680 110 C 770 110, 780 250, 870 250 C 960 250, 970 110, 1060 110";
+
+const VIEW_W = 1170;
+const VIEW_H = 360;
+
+/**
+ * Six stops along the way.
+ *
+ * `x`/`y` are the exact coordinates where each stop meets the road, in the
+ * SVG's own units; the CSS converts them to percentages so the markers stay
+ * pinned to the tarmac at any width. `above` places the card clear of the
+ * curve rather than on top of it.
+ */
+const steps = [
+  {
+    id: "01",
+    title: "Discovery",
+    desc: "Goals, users and constraints, mapped before a line is written.",
+    icon: processRequirements,
+    x: 110, y: 250, above: false,
+  },
+  {
+    id: "02",
+    title: "Roadmap",
+    desc: "Scope, milestones and a plan you can hold us to.",
+    icon: processAgreement,
+    x: 300, y: 110, above: true,
+  },
+  {
+    id: "03",
+    title: "Design",
+    desc: "Wireframes, prototypes and a system your build reuses.",
+    icon: processDesign,
+    x: 490, y: 250, above: false,
+  },
+  {
+    id: "04",
+    title: "Build",
+    desc: "Modular, reviewed code on a steady release cadence.",
+    icon: processDevelopment,
+    x: 680, y: 110, above: true,
+  },
+  {
+    id: "05",
+    title: "Testing",
+    desc: "Device, performance and security passes before ship.",
+    icon: processTesting,
+    x: 870, y: 250, above: false,
+  },
+  {
+    id: "06",
+    title: "Launch",
+    desc: "Deploy, monitor, and stay on long after go-live.",
+    icon: processDeployment,
+    x: 1060, y: 110, above: true,
+  },
+];
 
 const OurProcess = () => {
-  // --- Data for the Main Process Slider (with normalized description lengths) ---
-  const processData = [
-    {
-      step: 1,
-      title: "Requirements",
-      icon: processRequirements,
-      desc: "We begin by thoroughly understanding your business goals and vision to define clear project objectives and a solid foundation for success.",
-    },
-    {
-      step: 2,
-      title: "Agreement",
-      icon: processAgreement,
-      desc: "We establish a transparent project agreement detailing scope, timeline, and budget to ensure clarity and build mutual trust.",
-    },
-    {
-      step: 3,
-      title: "UI/UX Design",
-      icon: processDesign,
-      desc: "Our designers craft intuitive wireframes and stunning prototypes focused on user experience, accessibility, and your brand identity.",
-    },
-    {
-      step: 4,
-      title: "Development",
-      icon: processDevelopment,
-      desc: "Our expert developers build your app using modern frameworks, ensuring it is scalable, high-performing, and built to last.",
-    },
-    {
-      step: 5,
-      title: "Testing",
-      icon: processTesting,
-      desc: "We conduct rigorous manual and automated testing to guarantee a flawless, secure, and bug-free user experience before launch.",
-    },
-    {
-      step: 6,
-      title: "Client Approval",
-      icon: processApproval,
-      desc: "You review the app, and we carefully incorporate your feedback to ensure the final product perfectly matches your expectations.",
-    },
-    {
-      step: 7,
-      title: "Deployment",
-      icon: processDeployment,
-      desc: "We handle the seamless deployment of your app to all relevant stores, optimizing for maximum visibility and a successful launch.",
-    },
-    {
-      step: 8,
-      title: "User Experience",
-      icon: processUx,
-      desc: "Post-launch, we monitor user interactions and gather insights to continuously improve the app for a smooth user journey.",
-    },
-    {
-      step: 9,
-      title: "Analogue Monitor",
-      icon: processMonitor,
-      desc: "Our partnership continues with ongoing performance monitoring, updates, and new features to keep your app future-ready.",
-    },
-  ];
+  const sectionRef = useRef(null);
+  const [drawn, setDrawn] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  // --- Data for the Marquee Slider (Unchanged) ---
-  const marqueeData = [
-    { id: 1, text: "App Development" },
-    { id: 2, text: "Web Development" },
-    { id: 3, text: "E-Commerce Solutions" },
-    { id: 4, text: "Digital Marketing" },
-    { id: 5, text: "UI/UX Design" },
-  ];
+  /**
+   * The road lays itself once, when the section arrives. Tying the draw to
+   * scroll position instead would make the tarmac advance and retreat as the
+   * user moves, which reads as a fault rather than as progress.
+   */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) setReduceMotion(true);
+
+    if (!("IntersectionObserver" in window) || reduced) {
+      setDrawn(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setDrawn(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <>
-      <style>{`
-        .process-card-enhanced {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: visible;
-        }
-        
-        .process-card-enhanced:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 30px rgba(28, 36, 109, 0.1);
-        }
-        
-        .process-icon-wrapper {
-          transition: all 0.4s ease;
-          position: relative;
-        }
-        
-        .process-card-enhanced:hover .process-icon-wrapper {
-          transform: scale(1.1) rotate(5deg);
-        }
-        
-        .process-card-enhanced:hover .process-circular-text {
-          animation: spin 20s linear infinite;
-        }
-        
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .process-card-enhanced:hover .process-circular-text text {
-          fill: #ff6b35;
-        }
-        
-        .step-tag-wrap {
-          position: absolute;
-          top: 5px;
-          right: 5px;
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          z-index: 10;
-        }
-        
-        .step-tag {
-          background: rgba(28, 36, 109, 0.85);
-          backdrop-filter: blur(8px);
-          color: white;
-          padding: 6px 18px;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 11px;
-          letter-spacing: 1.5px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          display: inline-block;
-        }
-        
-        .process-card-enhanced:hover .step-tag {
-          background: #ff6b35;
-          border-color: #ff6b35;
-          transform: translateY(-3px) scale(1.05);
-          box-shadow: 0 10px 20px rgba(255, 107, 53, 0.4);
-        }
-        
-        .process-title-link {
-          transition: all 0.3s ease;
-          display: inline-block;
-        }
-        
-        .process-card-enhanced:hover .process-title-link {
-          color: #ff6b35 !important;
-          transform: translateX(5px);
-        }
-        
-        .process-text-enhanced {
-          transition: color 0.3s ease;
-        }
-        
-        .process-card-enhanced:hover .process-text-enhanced {
-          color: #2c3e50;
-        }
-        
-        .process-shape-glow {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(28, 36, 109, 0.1) 0%, transparent 70%);
-          opacity: 0;
-          transition: opacity 0.4s ease;
-        }
-        
-        .process-card-enhanced:hover .process-shape-glow {
-          opacity: 1;
-        }
-      `}</style>
-      <section
-        className="process-area bg-top-center pt-80"
-        style={{
-          backgroundImage: `url(${processBg})`,
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        {/* --- Main Process Slider Section --- */}
-        <div className="container">
-          <div className="process-area">
-            <div className="process-content text-center">
-              <div
-                className="title-area mb-55"
-                data-aos="fade-down"
-                data-aos-duration="1000"
-              >
-                <span className="sub-title style1 text-white text-anime-style-2">
-                  Our Process
-                </span>
-                <h2 className="sec-title text-white text-anime-style-3">
-                  How It Work Process!
-                </h2>
-              </div>
-            </div>
+    <section
+      className={`rd-section ${drawn ? "is-drawn" : ""}`}
+      ref={sectionRef}
+      id="process"
+    >
+      <div className="rd-container">
+        <header className="rd-head">
+          <span className="rd-eyebrow">
+            <span className="rd-eyebrow-line" aria-hidden="true" />
+            How we work
+          </span>
+          <h2 className="rd-title">
+            The road from <span className="rd-title-hl">brief to launch</span>.
+          </h2>
+          <p className="rd-lede">
+            The same six stops on every project — so you always know where the
+            work is now, and what the next turn looks like.
+          </p>
+        </header>
 
-            <div className="slider-area">
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                spaceBetween={30}
-                slidesPerView={1}
-                loop={true}
-                autoplay={{
-                  delay: 3500,
-                  disableOnInteraction: false,
-                }}
-                pagination={{
-                  el: ".swiper-pagination",
-                  clickable: true,
-                }}
-                navigation={{
-                  nextEl: ".swiper-button-next",
-                  prevEl: ".swiper-button-prev",
-                }}
-                breakpoints={{
-                  0: { slidesPerView: 1 },
-                  576: { slidesPerView: 1 },
-                  768: { slidesPerView: 2 },
-                  992: { slidesPerView: 3 },
-                  1200: { slidesPerView: 4 },
-                }}
-                className="swiper th-slider has-shadow"
-                id="processSlider"
-              >
-                {processData.map((process, index) => (
-                  <SwiperSlide key={process.step}>
-                    <div
-                      className="process-item style-2 text-center process-card-enhanced"
-                      data-aos="fade-up"
-                      data-aos-duration="800"
-                      data-aos-delay={index * 100}
-                    >
-                      {/* <ul className="step-tag-wrap">
-                        <li className="step-tag">
-                          STEP {process.step.toString().padStart(2, "0")}
-                        </li>
-                      </ul> */}
-                      <p className="box-number"> STEP {process.step.toString().padStart(2, "0")}</p>
-                      <div className="process-icon mb-20 process-icon-wrapper">
-                        <div className="process-shape">
-                          <div className="process-shape-glow"></div>
-                        </div>
-                        <div className="process-circular-text">
-                          <svg viewBox="0 0 100 100">
-                            <path
-                              id={`circlePath-${process.step}`}
-                              d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
-                              fill="transparent"
-                            />
-                            <text>
-                              <textPath
-                                xlinkHref={`#circlePath-${process.step}`}
-                              >
-                                TECHLAND • PROCESS • TECHLAND • PROCESS •
-                              </textPath>
-                            </text>
-                          </svg>
-                        </div>
-                        <img
-                          src={process.icon}
-                          alt={`${process.title} Icon`}
-                          style={{
-                            width: "90px",
-                            height: "90px",
-                            position: "relative",
-                            zIndex: "2",
-                            objectFit: "contain",
-                          }}
-                          title={`${process.title} Process`}
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="process-content text-center">
-                        <h3 className="box-title mb-10">
-                          <Link to="#" className="process-title-link">
-                            {process.title}
-                          </Link>
-                        </h3>
-                        <p className="process-text process-text-enhanced">
-                          {process.desc}
-                        </p>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
-        </div>
-
-        {/* --- Marquee Slider Section (Unchanged) --- */}
-        <div className="overflow-hidden pt-80">
-          <div
-            className="container-fluid p-0"
-            data-cue="slideInUp"
-            style={{ backgroundColor: "#1c246d" }}
+        <div className="rd-map">
+          {/* The road itself */}
+          <svg
+            className="rd-svg"
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            fill="none"
+            aria-hidden="true"
+            preserveAspectRatio="xMidYMid meet"
           >
-            <Swiper
-              modules={[Autoplay]}
-              spaceBetween={30}
-              slidesPerView="auto"
-              loop={true}
-              allowTouchMove={false}
-              autoplay={{
-                delay: 1,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: false,
-              }}
-              speed={10000}
-              breakpoints={{
-                0: { slidesPerView: 1.5 },
-                576: { slidesPerView: 2 },
-                992: { slidesPerView: 3 },
-                1200: { slidesPerView: "auto" },
-              }}
-              className="swiper th-slider marquee-slider3"
-            >
-              {[...Array(5)].map((_, index) => (
-                <React.Fragment key={index}>
-                  {marqueeData.map((item) => (
-                    <SwiperSlide key={`${item.id}-${index}`}>
-                      <div className="marquee-card3">
-                        <div className="marquee-icon">
-                          <img src={marqueeIcon} alt="icon" loading="lazy" />
-                        </div>
-                        <a target="_blank" rel="noopener noreferrer" href="#">
-                          {item.text}
-                        </a>
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </React.Fragment>
-              ))}
-            </Swiper>
-          </div>
+            <defs>
+              <linearGradient id="rdInk" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#163198" />
+                <stop offset="50%" stopColor="#4f46e5" />
+                <stop offset="100%" stopColor="#7c3aed" />
+              </linearGradient>
+              <filter id="rdGlow" x="-20%" y="-40%" width="140%" height="180%">
+                <feGaussianBlur stdDeviation="9" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Ghost route — where the road is going to go */}
+            <path
+              className="rd-ghost"
+              d={ROAD}
+              stroke="rgba(10,10,10,0.07)"
+              strokeWidth="26"
+              strokeLinecap="round"
+            />
+
+            {/* Tarmac, drawn on arrival */}
+            <path
+              id="rdRoadPath"
+              className="rd-tarmac"
+              d={ROAD}
+              pathLength="1"
+              stroke="url(#rdInk)"
+              strokeWidth="26"
+              strokeLinecap="round"
+              filter="url(#rdGlow)"
+            />
+
+            {/* Centre line, dashed like a real one */}
+            <path
+              className="rd-dashes"
+              d={ROAD}
+              pathLength="1"
+              stroke="rgba(255,255,255,0.85)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeDasharray="0.012 0.018"
+            />
+
+            {/* The marker that drives the route.
+                It lives inside the SVG so it travels in the same coordinate
+                space as the road — a CSS motion path would be measured in
+                pixels and drift off the tarmac the moment the map resized. */}
+            {!reduceMotion && (
+              <g className="rd-runner">
+                <circle className="rd-runner-halo" r="16" fill="rgba(124,58,237,0.18)" />
+                <circle className="rd-runner-dot" r="7" fill="#ffffff" />
+                <circle
+                  className="rd-runner-core"
+                  r="4"
+                  fill="url(#rdInk)"
+                />
+                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto">
+                  <mpath href="#rdRoadPath" />
+                </animateMotion>
+              </g>
+            )}
+          </svg>
+
+          {/* Stops */}
+          <ol className="rd-stops">
+            {steps.map((step, i) => (
+              <li
+                className={`rd-stop ${step.above ? "is-above" : "is-below"}`}
+                key={step.id}
+                style={{
+                  "--i": i,
+                  "--x": `${(step.x / VIEW_W) * 100}%`,
+                  "--y": `${(step.y / VIEW_H) * 100}%`,
+                }}
+              >
+                <span className="rd-pin">
+                  <span className="rd-pin-ring" aria-hidden="true" />
+                  <img src={step.icon} alt="" aria-hidden="true" loading="lazy" />
+                </span>
+
+                <span className="rd-leg" aria-hidden="true" />
+
+                <div className="rd-card">
+                  <span className="rd-num">{step.id}</span>
+                  <h3 className="rd-stop-title">{step.title}</h3>
+                  <p className="rd-stop-desc">{step.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

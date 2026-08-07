@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { blogPosts } from "./blogData"; // Make sure this path is correct
+import company from "../../config/company";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -30,6 +31,39 @@ const BlogDetails = () => {
     // Return the top 3
     return sortedPosts.slice(0, 3);
   }, []); // Empty dependency array means this runs only once
+
+  // 3. Real share intents for THIS post. These used to point at the bare
+  // social homepages, so "Share" did nothing. Instagram has no web share
+  // endpoint at all, so WhatsApp takes its place — it is how most readers
+  // in India actually forward an article anyway.
+  const shareLinks = useMemo(() => {
+    const url = encodeURIComponent(
+      typeof window === "undefined" ? "" : window.location.href
+    );
+    const text = encodeURIComponent(post?.title || "");
+    return [
+      {
+        label: "Facebook",
+        icon: "/assets/icons/facebook.png",
+        href: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      },
+      {
+        label: "X",
+        icon: "/assets/icons/twitter.png",
+        href: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
+      },
+      {
+        label: "WhatsApp",
+        icon: "/assets/icons/whatsapp.png",
+        href: `https://api.whatsapp.com/send?text=${text}%20${url}`,
+      },
+      {
+        label: "LinkedIn",
+        icon: "/assets/icons/linkedin.png",
+        href: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      },
+    ];
+  }, [post?.title]);
 
   // If no post is found, show a "Not Found" message
   if (!post) {
@@ -237,46 +271,25 @@ const BlogDetails = () => {
                         <div className="share-links_wrapp">
                           <span className="share-links-title">Share:</span>
                           <div className="social-links">
-                            <a href="https://www.facebook.com/">
-                              <img
-                                src="/assets/icons/facebook.png"
-                                alt="Facebook"
-                                width="24"
-                                height="24"
-                                style={{ objectFit: "contain" }}
-                                loading="lazy"
-                              />
-                            </a>
-                            <a href="https://www.twitter.com/">
-                              <img
-                                src="/assets/icons/twitter.png"
-                                alt="Twitter"
-                                width="24"
-                                height="24"
-                                style={{ objectFit: "contain" }}
-                                loading="lazy"
-                              />
-                            </a>
-                            <a href="https://www.instagram.com/">
-                              <img
-                                src="/assets/icons/instagram.png"
-                                alt="Instagram"
-                                width="24"
-                                height="24"
-                                style={{ objectFit: "contain" }}
-                                loading="lazy"
-                              />
-                            </a>
-                            <a href="https://www.linkedin.com/">
-                              <img
-                                src="/assets/icons/linkedin.png"
-                                alt="LinkedIn"
-                                width="24"
-                                height="24"
-                                style={{ objectFit: "contain" }}
-                                loading="lazy"
-                              />
-                            </a>
+                            {shareLinks.map((s) => (
+                              <a
+                                key={s.label}
+                                href={s.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`Share on ${s.label}`}
+                                title={`Share on ${s.label}`}
+                              >
+                                <img
+                                  src={s.icon}
+                                  alt={s.label}
+                                  width="24"
+                                  height="24"
+                                  style={{ objectFit: "contain" }}
+                                  loading="lazy"
+                                />
+                              </a>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -391,8 +404,8 @@ const BlogDetails = () => {
                       />
                     </span>
                     <span className="text">Need Help? Call Here</span>
-                    <a className="phone" href="tel:+25669872564">
-                      +91 78423 85604
+                    <a className="phone" href={company.phone.href}>
+                      {company.phone.display}
                     </a>
                     <Link to="/contact" className="th-btn style6">
                       Get A Quote <i className="fa-regular fa-comment-dots"></i>

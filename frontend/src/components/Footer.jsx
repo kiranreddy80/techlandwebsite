@@ -1,735 +1,423 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { blogPosts } from "../pages/blogs/blogData.jsx";
-import { isWinterSeason } from "../utils/seasonUtils";
+import { Link } from "react-router-dom";
+import company from "../config/company";
+
+/**
+ * Services shown in the footer.
+ *
+ * Staffing Services was removed — it is no longer offered, and it had already
+ * been taken out of the home page services section.
+ */
+const services = [
+  { to: "/services/web-development", label: "Web Development" },
+  { to: "/services/mobile-app-development", label: "Mobile App Development" },
+  { to: "/services/digital-marketing", label: "Digital Marketing" },
+  { to: "/services/custom-software-development", label: "Custom Software" },
+  { to: "/services/ui-ux-design", label: "UI / UX Design" },
+];
+
+const companyLinks = [
+  { to: "/about", label: "About Us" },
+  { to: "/our-team", label: "Our Team" },
+  { to: "/portfolio", label: "Our Work" },
+  { to: "/services", label: "Services" },
+  { to: "/blogs", label: "Journal" },
+  { to: "/contact", label: "Contact" },
+];
+
+/** Only profiles that exist. Empty entries in company.js drop out here. */
+const socials = [
+  { href: company.social.linkedin, label: "LinkedIn", icon: "fab fa-linkedin-in" },
+  { href: company.social.instagram, label: "Instagram", icon: "fab fa-instagram" },
+  { href: company.social.facebook, label: "Facebook", icon: "fab fa-facebook-f" },
+  { href: company.whatsapp(), label: "WhatsApp", icon: "fab fa-whatsapp" },
+].filter((s) => s.href);
 
 function Footer() {
   const currentYear = new Date().getFullYear();
-  const location = useLocation();
-
-  // Get first 6 blogs for the gallery section
-  const blogImages = blogPosts.slice(0, 6);
-
-  // Check if it's winter season for snow effect
-  const isWinter = isWinterSeason();
-
-  // Social links with 3D icons and Font Awesome fallback
-  const socialLinks = [
-    {
-      href: "https://www.linkedin.com/company/techland-it-solutions/",
-      icon: "fab fa-linkedin-in",
-      icon3d: "/assets/icons/linkedin.png",
-      label: "LinkedIn",
-    },
-    {
-      href: `https://wa.me/917842385604?text=${encodeURI(
-        "Hi Techland,\nI'm inquiring about the website development and mobile app development"
-      )}`,
-      icon: "fab fa-whatsapp",
-      icon3d: "/assets/icons/whatsapp.png",
-      label: "WhatsApp",
-    },
-    {
-      href: "tel:+917842385604",
-      icon: "fas fa-phone-alt",
-      icon3d: "/assets/icons/phone.png",
-      label: "Phone",
-    },
-    {
-      href: "https://www.instagram.com/techlanditsolutions?igsh=MW1hemQ4YngxMWQ2aQ==",
-      icon: "fab fa-instagram",
-      icon3d: "/assets/icons/instagram.png",
-      label: "Instagram",
-    },
-  ];
 
   return (
-    <div>
+    <footer className="ft" role="contentinfo">
+      <div className="ft-bg" aria-hidden="true">
+        <span className="ft-orb ft-orb--a" />
+        <span className="ft-orb ft-orb--b" />
+        <span className="ft-grid" />
+      </div>
+
+      <div className="ft-container">
+        {/* -------------------------------------------------- top CTA */}
+        <div className="ft-cta">
+          <div>
+            <h2 className="ft-cta-title">
+              Have something to build?
+            </h2>
+            <p className="ft-cta-sub">
+              Send a short brief — scope, timeline and a number come back within
+              two working hours.
+            </p>
+          </div>
+          <div className="ft-cta-actions">
+            <Link to="/contact" className="ft-btn ft-btn--solid">
+              Start a project
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M4 10h11M11 5l5 5-5 5" />
+              </svg>
+            </Link>
+            <a href={company.phone.href} className="ft-btn ft-btn--ghost">
+              {company.phone.display}
+            </a>
+          </div>
+        </div>
+
+        {/* -------------------------------------------------- columns */}
+        <div className="ft-cols">
+          <div className="ft-col ft-col--brand">
+            <Link to="/" className="ft-logo" aria-label="Techland IT Solutions home">
+              <img src="/assets/media/logo.png" alt="Techland IT Solutions" loading="lazy" />
+            </Link>
+            <p className="ft-about">
+              An IT partner in Hyderabad building apps, websites and marketing
+              programmes for {company.stats.clients} businesses across India and
+              abroad — designed, built and supported in-house.
+            </p>
+
+            {socials.length > 0 && (
+              <ul className="ft-social">
+                {socials.map((s) => (
+                  <li key={s.label}>
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      title={s.label}
+                    >
+                      <i className={s.icon} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <nav className="ft-col" aria-label="Services">
+            <h3 className="ft-col-title">Services</h3>
+            <ul className="ft-links">
+              {services.map((s) => (
+                <li key={s.to}>
+                  <Link to={s.to}>{s.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav className="ft-col" aria-label="Company">
+            <h3 className="ft-col-title">Company</h3>
+            <ul className="ft-links">
+              {companyLinks.map((l) => (
+                <li key={l.to}>
+                  <Link to={l.to}>{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="ft-col ft-col--contact">
+            <h3 className="ft-col-title">Get in touch</h3>
+            <ul className="ft-contact">
+              <li>
+                <span className="ft-k">Studio</span>
+                <a
+                  className="ft-v"
+                  href={company.maps.place}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {company.address.full}
+                </a>
+              </li>
+              <li>
+                <span className="ft-k">Phone</span>
+                <a className="ft-v" href={company.phone.href}>
+                  {company.phone.display}
+                </a>
+              </li>
+              <li>
+                <span className="ft-k">Email</span>
+                <a className="ft-v" href={company.email.href}>
+                  {company.email.primary}
+                </a>
+              </li>
+              <li>
+                <span className="ft-k">Hours</span>
+                <span className="ft-v ft-v--plain">{company.hours.display}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* -------------------------------------------------- bottom */}
+        <div className="ft-bottom">
+          <p className="ft-copy">
+            © {currentYear} {company.name}. All rights reserved.
+          </p>
+          <p className="ft-meta">
+            {company.certifications.join(" · ")}
+            <span aria-hidden="true"> · </span>
+            Hyderabad, India
+          </p>
+        </div>
+      </div>
+
       <style>{`
-        /* Advanced 3D Snow Effect for Footer - ENHANCED */
-        @keyframes footerSnowfall3D {
-          0% {
-            transform: translateY(-10vh) translateX(0) translateZ(0) rotateZ(0deg);
-            opacity: 0;
-          }
-          5% {
-            opacity: 1;
-          }
-          95% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(110vh) translateX(var(--drift-x)) translateZ(var(--drift-z)) rotateZ(360deg);
-            opacity: 0;
-          }
-        }
+        /* ============================================================
+           FOOTER
 
-        @keyframes footerSnowfallWind {
-          0% {
-            transform: translateY(-10vh) translateX(0) rotateZ(0deg) scale(1);
-            opacity: 0;
-          }
-          5% {
-            opacity: 1;
-          }
-          25% {
-            transform: translateY(25vh) translateX(50px) rotateZ(90deg) scale(1.1);
-          }
-          50% {
-            transform: translateY(50vh) translateX(-30px) rotateZ(180deg) scale(0.9);
-          }
-          75% {
-            transform: translateY(75vh) translateX(40px) rotateZ(270deg) scale(1.05);
-          }
-          95% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(110vh) translateX(-20px) rotateZ(360deg) scale(1);
-            opacity: 0;
-          }
-        }
+           Replaces a 746-line build that carried ~300 lines of seasonal
+           emoji snowfall (❄ 💖 🔱 raining over the links), a logo with
+           alt="Atek" from the purchased template, a Staffing Services
+           link for a service no longer offered, and a six-image blog
+           thumbnail gallery that loaded full-size images.
 
-        @keyframes footerSnowfallSlow {
-          0% {
-            transform: translateY(-10vh) translateX(0) rotate(0deg);
-            opacity: 0;
-          }
-          10% {
-            opacity: 0.9;
-          }
-          90% {
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateY(110vh) translateX(var(--drift-slow)) rotate(180deg);
-            opacity: 0;
-          }
-        }
-
-        @keyframes footerSnowGlow {
-          0%, 100% {
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 1)) 
-                    drop-shadow(0 0 10px rgba(173, 216, 230, 0.8))
-                    drop-shadow(0 0 15px rgba(135, 206, 250, 0.6));
-          }
-          50% {
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)) 
-                    drop-shadow(0 0 20px rgba(173, 216, 230, 1))
-                    drop-shadow(0 0 30px rgba(135, 206, 250, 0.8));
-          }
-        }
-
-        @keyframes footerSnowTwirl {
-          0% {
-            transform: translateY(-10vh) translateX(0) rotate(0deg) scale(0.8);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          50% {
-            transform: translateY(50vh) translateX(var(--twirl-x)) rotate(720deg) scale(1.2);
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(110vh) translateX(0) rotate(1080deg) scale(0.8);
-            opacity: 0;
-          }
-        }
-
-        @keyframes footerSnowSparkle {
-          0%, 100% {
-            opacity: 0.7;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.3);
-          }
-        }
-
-        .footer-snow-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+           Four columns, one accent, everything sourced from company.js.
+           ============================================================ */
+        .ft {
+          position: relative;
+          isolation: isolate;
           overflow: hidden;
-          pointer-events: none;
-          z-index: 5;
-          perspective: 1000px;
+          background: #0B1020;
+          color: rgba(255,255,255,0.72);
+          padding: 0 0 26px;
         }
 
-        .footer-snow-layer {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+        .ft-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+        .ft-orb { position: absolute; border-radius: 999px; filter: blur(120px); }
+        .ft-orb--a {
+          width: 520px; height: 520px; top: -220px; left: -160px;
+          background: radial-gradient(closest-side, rgba(79,70,229,0.42), transparent);
+        }
+        .ft-orb--b {
+          width: 560px; height: 560px; bottom: -260px; right: -180px;
+          background: radial-gradient(closest-side, rgba(124,58,237,0.34), transparent);
+        }
+        .ft-grid {
+          position: absolute; inset: 0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+          background-size: 54px 54px;
+          mask-image: radial-gradient(ellipse at 50% 0%, #000 10%, transparent 68%);
         }
 
-        .footer-snow-layer-1 {
-          z-index: 3;
-          filter: blur(0px);
+        .ft-container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 1024px) { .ft-container { padding: 0 32px; } }
+
+        /* ---- top CTA ---- */
+        .ft-cta {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 26px;
+          padding: 46px 0 42px;
+          border-bottom: 1px solid rgba(255,255,255,0.09);
+        }
+        @media (min-width: 1024px) { .ft-cta { padding: 62px 0 54px; } }
+
+        .ft-cta-title {
+          margin: 0;
+          font-family: "Play", sans-serif;
+          font-weight: 700;
+          font-size: clamp(1.6rem, 2.4vw + 0.6rem, 2.4rem);
+          line-height: 1.1;
+          letter-spacing: -0.032em;
+          color: #ffffff;
+          text-wrap: balance;
+        }
+        .ft-cta-sub {
+          margin: 10px 0 0;
+          font-size: 15px;
+          line-height: 1.6;
+          color: rgba(255,255,255,0.55);
+          max-width: 46ch;
+        }
+        .ft-cta-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+        .ft-btn {
+          display: inline-flex; align-items: center; gap: 9px;
+          padding: 14px 26px;
+          border-radius: 999px;
+          font-family: "Play", sans-serif;
+          font-size: 14px; font-weight: 640;
+          letter-spacing: -0.01em;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                      box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+        }
+        .ft-btn--solid {
+          color: #ffffff;
+          background: linear-gradient(120deg, #163198, #4f46e5 55%, #7c3aed);
+          box-shadow: 0 18px 40px -18px rgba(79,70,229,0.8);
+        }
+        .ft-btn--solid:hover {
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 24px 52px -18px rgba(79,70,229,0.95);
+        }
+        .ft-btn--ghost {
+          color: rgba(255,255,255,0.9);
+          border: 1px solid rgba(255,255,255,0.2);
+          background: rgba(255,255,255,0.04);
+        }
+        .ft-btn--ghost:hover {
+          color: #ffffff;
+          background: rgba(255,255,255,0.1);
+          border-color: rgba(255,255,255,0.34);
+        }
+        .ft-btn svg {
+          width: 17px; height: 17px;
+          fill: none; stroke: currentColor;
+          stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .ft-btn--solid:hover svg { transform: translateX(3px); }
+
+        /* ---- columns ---- */
+        .ft-cols {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 38px;
+          padding: 44px 0 40px;
+          border-bottom: 1px solid rgba(255,255,255,0.09);
+        }
+        @media (min-width: 640px)  { .ft-cols { grid-template-columns: 1fr 1fr; gap: 38px 32px; } }
+        @media (min-width: 1024px) { .ft-cols { grid-template-columns: 1.5fr 1fr 1fr 1.4fr; gap: 44px; padding: 56px 0 48px; } }
+
+        .ft-col { min-width: 0; }
+        .ft-col-title {
+          margin: 0 0 18px;
+          font-family: ui-monospace, monospace;
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.45);
         }
 
-        .footer-snow-layer-2 {
-          z-index: 2;
-          filter: blur(0.5px);
-          opacity: 0.85;
+        .ft-logo { display: inline-block; }
+        /* The stored logo is dark-on-white, so it needs a plate to sit on a
+           dark ground. A knockout version would remove the need for this. */
+        .ft-logo img {
+          height: 42px; width: auto; display: block;
+          background: #ffffff;
+          padding: 7px 11px;
+          border-radius: 10px;
+        }
+        .ft-about {
+          margin: 20px 0 0;
+          font-size: 14.5px;
+          line-height: 1.68;
+          color: rgba(255,255,255,0.55);
+          max-width: 42ch;
         }
 
-        .footer-snow-layer-3 {
-          z-index: 1;
-          filter: blur(1px);
-          opacity: 0.7;
+        .ft-social { list-style: none; margin: 22px 0 0; padding: 0; display: flex; gap: 10px; }
+        .ft-social a {
+          width: 38px; height: 38px;
+          display: inline-flex; align-items: center; justify-content: center;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.16);
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.75);
+          font-size: 14px;
+          text-decoration: none;
+          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                      background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .ft-social a:hover {
+          transform: translateY(-3px);
+          color: #ffffff;
+          border-color: transparent;
+          background: linear-gradient(135deg, #163198, #7c3aed);
         }
 
-        .footer-snowflake {
-          position: absolute;
-          top: -10vh;
-          color: #fff;
-          font-size: 1em;
-          opacity: 0.95;
-          will-change: transform, opacity;
-          text-shadow: 0 0 15px rgba(255, 255, 255, 1),
-                       0 0 25px rgba(173, 216, 230, 0.8),
-                       0 0 35px rgba(135, 206, 250, 0.6),
-                       0 0 45px rgba(100, 149, 237, 0.4);
-        }
-
-        /* Layer 1 - Close snowflakes (large, slow) - 10 snowflakes */
-        .footer-snow-layer-1 .footer-snowflake:nth-child(1) { left: 5%; --drift-x: 80px; --drift-z: 100px; animation: footerSnowfall3D 15s linear infinite; animation-delay: 0s; font-size: 2.2em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(2) { left: 15%; --drift-slow: -60px; animation: footerSnowfallSlow 18s linear infinite; animation-delay: 2s; font-size: 2em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(3) { left: 25%; animation: footerSnowfallWind 16s ease-in-out infinite; animation-delay: 1s; font-size: 2.4em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(4) { left: 35%; --twirl-x: 100px; animation: footerSnowTwirl 17s linear infinite; animation-delay: 3s; font-size: 2.1em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(5) { left: 45%; --drift-x: -90px; --drift-z: 80px; animation: footerSnowfall3D 19s linear infinite; animation-delay: 1.5s; font-size: 2.3em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(6) { left: 55%; --drift-slow: 70px; animation: footerSnowfallSlow 20s linear infinite; animation-delay: 0.5s; font-size: 1.9em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(7) { left: 65%; --drift-x: 85px; --drift-z: 90px; animation: footerSnowfall3D 16s linear infinite; animation-delay: 2.5s; font-size: 2.2em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(8) { left: 75%; animation: footerSnowfallWind 17s ease-in-out infinite; animation-delay: 1.8s; font-size: 2em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(9) { left: 85%; --twirl-x: -95px; animation: footerSnowTwirl 18s linear infinite; animation-delay: 0.8s; font-size: 2.1em; }
-        .footer-snow-layer-1 .footer-snowflake:nth-child(10) { left: 95%; --drift-slow: -75px; animation: footerSnowfallSlow 19s linear infinite; animation-delay: 3.5s; font-size: 1.8em; }
-
-        /* Layer 2 - Medium snowflakes (medium size, medium speed) - 15 snowflakes */
-        .footer-snow-layer-2 .footer-snowflake:nth-child(1) { left: 3%; --drift-x: 60px; --drift-z: 50px; animation: footerSnowfall3D 12s linear infinite; animation-delay: 0.3s; font-size: 1.5em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(2) { left: 10%; animation: footerSnowfallWind 13s ease-in-out infinite; animation-delay: 1.2s; font-size: 1.3em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(3) { left: 17%; --drift-slow: -50px; animation: footerSnowfallSlow 14s linear infinite; animation-delay: 2.1s; font-size: 1.4em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(4) { left: 24%; --twirl-x: -70px; animation: footerSnowTwirl 11s linear infinite; animation-delay: 0.8s; font-size: 1.6em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(5) { left: 31%; --drift-x: -55px; --drift-z: 60px; animation: footerSnowfall3D 13s linear infinite; animation-delay: 1.7s; font-size: 1.2em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(6) { left: 38%; animation: footerSnowfallWind 15s ease-in-out infinite; animation-delay: 2.5s; font-size: 1.5em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(7) { left: 45%; --drift-slow: 65px; animation: footerSnowfallSlow 12s linear infinite; animation-delay: 0.9s; font-size: 1.3em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(8) { left: 52%; --twirl-x: 80px; animation: footerSnowTwirl 14s linear infinite; animation-delay: 3.2s; font-size: 1.4em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(9) { left: 59%; --drift-x: 45px; --drift-z: 40px; animation: footerSnowfall3D 16s linear infinite; animation-delay: 1.1s; font-size: 1.6em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(10) { left: 66%; animation: footerSnowfallWind 11s ease-in-out infinite; animation-delay: 2.8s; font-size: 1.2em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(11) { left: 73%; --drift-slow: -60px; animation: footerSnowfallSlow 13s linear infinite; animation-delay: 1.5s; font-size: 1.5em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(12) { left: 80%; --twirl-x: -75px; animation: footerSnowTwirl 12s linear infinite; animation-delay: 0.6s; font-size: 1.3em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(13) { left: 87%; --drift-x: 55px; --drift-z: 45px; animation: footerSnowfall3D 14s linear infinite; animation-delay: 2.3s; font-size: 1.4em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(14) { left: 93%; animation: footerSnowfallWind 15s ease-in-out infinite; animation-delay: 1.9s; font-size: 1.2em; }
-        .footer-snow-layer-2 .footer-snowflake:nth-child(15) { left: 97%; --drift-slow: 70px; animation: footerSnowfallSlow 11s linear infinite; animation-delay: 3.7s; font-size: 1.6em; }
-
-        /* Layer 3 - Far snowflakes (small, fast) - 20 snowflakes */
-        .footer-snow-layer-3 .footer-snowflake:nth-child(1) { left: 2%; --drift-x: 30px; --drift-z: 20px; animation: footerSnowfall3D 8s linear infinite; animation-delay: 0s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(2) { left: 7%; animation: footerSnowfallWind 9s ease-in-out infinite; animation-delay: 0.5s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(3) { left: 12%; --drift-slow: -35px; animation: footerSnowfallSlow 10s linear infinite; animation-delay: 1.2s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(4) { left: 17%; --twirl-x: -40px; animation: footerSnowTwirl 7s linear infinite; animation-delay: 1.8s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(5) { left: 22%; --drift-x: -25px; --drift-z: 30px; animation: footerSnowfall3D 9s linear infinite; animation-delay: 0.7s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(6) { left: 27%; animation: footerSnowfallWind 8s ease-in-out infinite; animation-delay: 2.3s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(7) { left: 32%; --drift-slow: 40px; animation: footerSnowfallSlow 11s linear infinite; animation-delay: 1.5s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(8) { left: 37%; --twirl-x: 50px; animation: footerSnowTwirl 9s linear infinite; animation-delay: 0.3s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(9) { left: 42%; --drift-x: 35px; --drift-z: 25px; animation: footerSnowfall3D 10s linear infinite; animation-delay: 2.8s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(10) { left: 47%; animation: footerSnowfallWind 7s ease-in-out infinite; animation-delay: 1.9s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(11) { left: 52%; --drift-slow: -30px; animation: footerSnowfallSlow 8s linear infinite; animation-delay: 0.4s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(12) { left: 57%; --twirl-x: -45px; animation: footerSnowTwirl 10s linear infinite; animation-delay: 2.1s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(13) { left: 62%; --drift-x: 28px; --drift-z: 22px; animation: footerSnowfall3D 9s linear infinite; animation-delay: 1.3s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(14) { left: 67%; animation: footerSnowfallWind 8s ease-in-out infinite; animation-delay: 2.7s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(15) { left: 72%; --drift-slow: 38px; animation: footerSnowfallSlow 11s linear infinite; animation-delay: 0.9s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(16) { left: 77%; --twirl-x: 48px; animation: footerSnowTwirl 7s linear infinite; animation-delay: 3.1s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(17) { left: 82%; --drift-x: -32px; --drift-z: 28px; animation: footerSnowfall3D 10s linear infinite; animation-delay: 1.6s; font-size: 0.7em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(18) { left: 87%; animation: footerSnowfallWind 9s ease-in-out infinite; animation-delay: 2.4s; font-size: 0.9em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(19) { left: 92%; --drift-slow: -33px; animation: footerSnowfallSlow 8s linear infinite; animation-delay: 0.2s; font-size: 0.8em; }
-        .footer-snow-layer-3 .footer-snowflake:nth-child(20) { left: 97%; --twirl-x: -42px; animation: footerSnowTwirl 9s linear infinite; animation-delay: 2.9s; font-size: 0.7em; }
-
-        /* Glowing snowflakes with enhanced effect */
-        .footer-snowflake.glow {
-          animation: footerSnowGlow 2.5s ease-in-out infinite;
-        }
-
-        /* Sparkling snowflakes */
-        .footer-snowflake.sparkle {
-          animation: footerSnowSparkle 1.5s ease-in-out infinite;
-        }
-
-        /* 3D Social Media Icons Styling */
-        .th-social a {
+        .ft-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+        .ft-links a {
+          font-size: 14.5px;
+          color: rgba(255,255,255,0.62);
+          text-decoration: none;
           display: inline-flex;
           align-items: center;
-          justify-content: center;
-          width: 50px;
-          height: 50px;
-          margin: 0 8px;
-          border-radius: 12px;
-          background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          position: relative;
-          overflow: hidden;
+          gap: 8px;
+          transition: color 0.28s ease, gap 0.28s cubic-bezier(0.22,1,0.36,1);
+        }
+        /* A rule that grows in from nothing, rather than an arrow that jumps. */
+        .ft-links a::before {
+          content: "";
+          width: 0; height: 1px;
+          background: linear-gradient(90deg, #4f46e5, #a78bfa);
+          transition: width 0.28s cubic-bezier(0.22,1,0.36,1);
+        }
+        .ft-links a:hover { color: #ffffff; }
+        .ft-links a:hover::before { width: 14px; }
+
+        /* ---- contact ---- */
+        .ft-contact { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+        .ft-contact li {
+          display: grid;
+          grid-template-columns: 62px 1fr;
+          gap: 14px;
+          align-items: baseline;
+          padding: 12px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .ft-contact li:last-child { border-bottom: 0; }
+        .ft-k {
+          font-family: ui-monospace, monospace;
+          font-size: 9.5px; font-weight: 700;
+          letter-spacing: 0.16em; text-transform: uppercase;
+          color: rgba(255,255,255,0.38);
+        }
+        .ft-v {
+          font-size: 14px;
+          line-height: 1.55;
+          color: rgba(255,255,255,0.82);
+          text-decoration: none;
+          transition: color 0.28s ease;
+        }
+        a.ft-v:hover { color: #a78bfa; }
+        .ft-v--plain { color: rgba(255,255,255,0.6); }
+
+        /* ---- bottom ---- */
+        .ft-bottom {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding-top: 24px;
+        }
+        .ft-copy, .ft-meta {
+          margin: 0;
+          font-size: 12.5px;
+          color: rgba(255,255,255,0.45);
+        }
+        .ft-meta {
+          font-family: ui-monospace, monospace;
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
         }
 
-        .th-social a::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), transparent);
-          opacity: 0;
-          transition: opacity 0.4s ease;
-        }
-
-        .th-social a:hover::before {
-          opacity: 1;
-        }
-
-        .th-social a:hover {
-          transform: translateY(-8px) scale(1.1);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3),
-                      0 5px 15px rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        .th-social a img {
-          width: 32px;
-          height: 32px;
-          object-fit: contain;
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-        }
-
-        .th-social a:hover img {
-          transform: scale(1.15) rotateY(360deg);
-          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        @keyframes float3d {
-          0%, 100% {
-            transform: translateY(0px) rotateZ(0deg);
+        @media (prefers-reduced-motion: reduce) {
+          .ft-btn, .ft-btn svg, .ft-social a, .ft-links a, .ft-links a::before, .ft-v {
+            transition: none !important;
           }
-          50% {
-            transform: translateY(-5px) rotateZ(2deg);
-          }
-        }
-
-        .th-social a:nth-child(1) {
-          animation: float3d 3s ease-in-out infinite;
-          animation-delay: 0s;
-        }
-
-        .th-social a:nth-child(2) {
-          animation: float3d 3s ease-in-out infinite;
-          animation-delay: 0.2s;
-        }
-
-        .th-social a:nth-child(3) {
-          animation: float3d 3s ease-in-out infinite;
-          animation-delay: 0.4s;
-        }
-
-        .th-social a:nth-child(4) {
-          animation: float3d 3s ease-in-out infinite;
-          animation-delay: 0.6s;
-        }
-
-        /* Hover effect for footer contact number */
-        .about-contact-details-text a {
-          transition: color 0.3s ease;
-        }
-        .about-contact-details-text a:hover {
-          color: #fff !important;
-        }
-
-        /* Hover effect for footer location info */
-        .info-box_link:hover {
-          color: #fff !important;
+          .ft-btn--solid:hover, .ft-social a:hover { transform: none !important; }
         }
       `}</style>
-
-      <footer
-        className="footer-wrapper footer-layout1  space-top bg-title footer-layout10"
-        data-aos="fade-up"
-        data-aos-duration="1000"
-        style={{ position: "relative" }}
-      >
-        <div className="shape-mockup shadow-title" data-top="0" data-right="0">
-          Techland
-        </div>
-
-        {/* Advanced 3-Layer Snow Effect Container - ENHANCED (Winter Only) */}
-        {isWinter && (
-          <div className="footer-snow-container">
-            {/* Layer 1 - Foreground (Close, Large, Slow) - 10 snowflakes */}
-            <div className="footer-snow-layer footer-snow-layer-1">
-              <div className="footer-snowflake glow">❄</div>
-              <div className="footer-snowflake sparkle">❅</div>
-              <div className="footer-snowflake glow">❆</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake glow">❄</div>
-              <div className="footer-snowflake sparkle">✼</div>
-              <div className="footer-snowflake glow">❅</div>
-              <div className="footer-snowflake">❆</div>
-              <div className="footer-snowflake sparkle">✽</div>
-              <div className="footer-snowflake glow">❄</div>
-            </div>
-
-            {/* Layer 2 - Midground (Medium, Medium Speed) - 15 snowflakes */}
-            <div className="footer-snow-layer footer-snow-layer-2">
-              <div className="footer-snowflake">❅</div>
-              <div className="footer-snowflake glow">❆</div>
-              <div className="footer-snowflake sparkle">❄</div>
-              <div className="footer-snowflake">✽</div>
-              <div className="footer-snowflake glow">❅</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake sparkle">❆</div>
-              <div className="footer-snowflake glow">❄</div>
-              <div className="footer-snowflake">✼</div>
-              <div className="footer-snowflake sparkle">❅</div>
-              <div className="footer-snowflake glow">❆</div>
-              <div className="footer-snowflake">✽</div>
-              <div className="footer-snowflake sparkle">❄</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake glow">❅</div>
-            </div>
-
-            {/* Layer 3 - Background (Far, Small, Fast) - 20 snowflakes */}
-            <div className="footer-snow-layer footer-snow-layer-3">
-              <div className="footer-snowflake">❄</div>
-              <div className="footer-snowflake">❅</div>
-              <div className="footer-snowflake sparkle">❆</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake">❄</div>
-              <div className="footer-snowflake sparkle">✽</div>
-              <div className="footer-snowflake">❅</div>
-              <div className="footer-snowflake">✼</div>
-              <div className="footer-snowflake sparkle">❆</div>
-              <div className="footer-snowflake">❄</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake sparkle">❅</div>
-              <div className="footer-snowflake">❆</div>
-              <div className="footer-snowflake">✽</div>
-              <div className="footer-snowflake sparkle">❄</div>
-              <div className="footer-snowflake">✼</div>
-              <div className="footer-snowflake">❅</div>
-              <div className="footer-snowflake sparkle">❆</div>
-              <div className="footer-snowflake">✻</div>
-              <div className="footer-snowflake">❄</div>
-            </div>
-          </div>
-        )}
-
-        <div className="widget-area">
-          <div className="container">
-            {/* Newsletter Section (Kept from second footer) */}
-
-            <div className="row justify-content-between">
-              {/* About Us Column */}
-              <div className="col-md-6 col-xl-3">
-                <div className="widget footer-widget">
-                  <div className="th-widget-about">
-                    <div className="about-logo">
-                      {/* Logo from second footer, unchanged */}
-                      <Link to="/">
-                        <img
-                          src="/assets/media/logo.png"
-                          alt="Atek"
-                          loading="lazy"
-                        />
-                      </Link>
-                    </div>
-                    {/* About text from first footer */}
-                    <p className="about-text">
-                      We are expert designer team, There have a lot of designer
-                      and developer If you have any project you can hire Create
-                      a website.
-                    </p>
-                    {/* Social links with 3D icons */}
-                    <div className="th-social">
-                      {socialLinks.map((link) => (
-                        <a
-                          key={link.label}
-                          href={link.href}
-                          aria-label={link.label}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <img
-                            src={link.icon3d}
-                            alt={link.label}
-                            loading="lazy"
-                          />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Links Column */}
-              <div className="col-md-6 col-xl-auto">
-                <div className="widget widget_nav_menu footer-widget">
-                  <h3 className="widget_title">Links</h3>
-                  <div className="menu-all-pages-container">
-                    <ul className="menu">
-                      <li>
-                        <Link
-                          to="/"
-                          className={location.pathname === "/" ? "active" : ""}
-                        >
-                          Home
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/about"
-                          className={
-                            location.pathname === "/about" ? "active" : ""
-                          }
-                        >
-                          About us
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services"
-                          className={
-                            location.pathname === "/services" ||
-                            location.pathname.startsWith("/services/")
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Services
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/portfolio"
-                          className={
-                            location.pathname === "/portfolio" ? "active" : ""
-                          }
-                        >
-                          Portfolio
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/our-team"
-                          className={
-                            location.pathname === "/our-team" ? "active" : ""
-                          }
-                        >
-                          Our Team
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/contact"
-                          className={
-                            location.pathname === "/contact" ? "active" : ""
-                          }
-                        >
-                          Contact us
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-6 col-xl-auto">
-                <div className="widget widget_nav_menu footer-widget">
-                  <h3 className="widget_title">Our Services</h3>
-                  <div className="menu-all-pages-container">
-                    <ul className="menu">
-                      <li>
-                        <Link
-                          to="/services/mobile-app-development"
-                          className={
-                            location.pathname ===
-                            "/services/mobile-app-development"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Mobile App Development
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/web-development"
-                          className={
-                            location.pathname === "/services/web-development"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Web Development
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/digital-marketing"
-                          className={
-                            location.pathname === "/services/digital-marketing"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Digital Marketing
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/custom-software-development"
-                          className={
-                            location.pathname ===
-                            "/services/custom-software-development"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Custom Software Development
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/ui-ux-design"
-                          className={
-                            location.pathname === "/services/ui-ux-design"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          UI/UX Design
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/staffing-services"
-                          className={
-                            location.pathname === "/services/staffing-services"
-                              ? "active"
-                              : ""
-                          }
-                        >
-                          Staffing Services
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Blog Posts Column */}
-              <div className="col-md-6 col-xl-auto">
-                <div className="widget footer-widget">
-                  <h3 className="widget_title">Recent Blog Posts</h3>
-                  <div className="sidebar-gallery">
-                    {blogImages.map((blog, index) => (
-                      <div className="gallery-thumb" key={index}>
-                        <img
-                          src={blog.imageUrl}
-                          alt={blog.title}
-                          loading="lazy"
-                        />
-                        <Link
-                          to={`/blogs/${blog.id}`}
-                          className="gallery-btn"
-                          title={blog.title}
-                        >
-                          <i className="fas fa-book-open"></i>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="row mt-3 justify-content-between">
-              <div className="col-lg-4 mb-3 mb-lg-0">
-                <div className="about-contact-grid inner-style">
-                  <span className="about-contact-icon">
-                    <i className="fa-solid fa-headphones-simple"></i>
-                  </span>
-                  <div className="about-contact-details">
-                    <span className="sec-text">Call Us For Query</span>
-                    <p className="about-contact-details-text info-box_link">
-                      <a href="tel:+917842385604">+91 784 238 5604</a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-4 mb-3 mb-lg-0">
-                <div className="about-contact-grid inner-style">
-                  <span className="about-contact-icon">
-                    <i className="fa-light fa-envelope-open-text"></i>
-                  </span>
-                  <div className="about-contact-details">
-                    <span className="sec-text">Email Us Anytime</span>
-                    <p className="about-contact-details-text">
-                      <a href="mailto:info@techlanditsolutions.com">
-                        info@techlanditsolutions.com
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-4 mb-3 mb-lg-0">
-                <div className="info-box_text align-items-center about-contact-grid inner-style">
-                  <span className="about-contact-icon">
-                    <i className="fa-thin fa-map-location-dot"></i>
-                  </span>
-                  <div className="details">
-                    <p>
-                      <a
-                        href="https://maps.app.goo.gl/N13ixNnC7UHf7nwT9"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="info-box_link"
-                      >
-                        Flat No. 101, Sirisampada Hitec Apartment, H. No.
-                        1-63/C/8/2, Plot No. 2, Block No. 8, Kavuri Hills
-                        Madhapur, Hyderabad, Telangana 500081
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Bottom */}
-        <div className="copyright-wrap">
-          <div className="container">
-            <div className="row justify-content-lg-between align-items-center">
-              <div className="col-lg-6"></div>
-              <div className="col-lg-6 text-center text-lg-end">
-                <div className="footer-links">
-                  <p className="copyright-text">
-                    Copyright © {currentYear}{" "}
-                    <Link to="/">Techland IT Solutions</Link>. All Rights
-                    Reserved.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </footer>
   );
 }
 
