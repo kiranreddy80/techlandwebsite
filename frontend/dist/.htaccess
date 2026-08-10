@@ -14,8 +14,14 @@
   RewriteEngine On
   RewriteBase /
 
-  # Never swallow API calls — if the backend is ever proxied on this same
-  # domain, these must pass through untouched.
+  # The contact endpoint. The frontend posts to /api/contact with no
+  # extension — the same URL the Vercel function answers — so on PHP hosting
+  # that has to be mapped onto the actual file. This must come before both
+  # the passthrough and the SPA fallback, or the request never reaches PHP.
+  RewriteRule ^api/contact/?$ api/contact.php [L]
+
+  # Never swallow other API calls — if a backend is ever proxied on this same
+  # domain, these must pass through untouched rather than returning the SPA.
   RewriteRule ^api/ - [L]
 
   # Real files and directories are served as-is.
