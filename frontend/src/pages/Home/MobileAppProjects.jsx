@@ -19,16 +19,16 @@ import config from "../../config";
  * someone confirms the real product name.
  */
 const staticMobileShots = [
-  { src: "/assets/img/mobile_projects/1.png",  name: "Zenfoo" },
-  { src: "/assets/img/mobile_projects/2.png",  name: "Best Seeds" },
-  { src: "/assets/img/mobile_projects/3.png",  name: "Market Yatra" },
-  { src: "/assets/img/mobile_projects/4.png",  name: "Home Services" },
-  { src: "/assets/img/mobile_projects/5.png",  name: "SAPID" },
-  { src: "/assets/img/mobile_projects/6.png",  name: "Temple City" },
-  { src: "/assets/img/mobile_projects/7.png",  name: "Yuva Rider" },
-  { src: "/assets/img/mobile_projects/8.png",  name: "SAPID" },
-  { src: "/assets/img/mobile_projects/9.png",  name: "TRUSTlab" },
-  { src: "/assets/img/mobile_projects/10.png", name: "Abhisree Foundation" },
+  { src: "/assets/img/mobile_projects/1.webp",  name: "Zenfoo" },
+  { src: "/assets/img/mobile_projects/2.webp",  name: "Best Seeds" },
+  { src: "/assets/img/mobile_projects/3.webp",  name: "Market Yatra" },
+  { src: "/assets/img/mobile_projects/4.webp",  name: "Home Services" },
+  { src: "/assets/img/mobile_projects/5.webp",  name: "SAPID" },
+  { src: "/assets/img/mobile_projects/6.webp",  name: "Temple City" },
+  { src: "/assets/img/mobile_projects/7.webp",  name: "Yuva Rider" },
+  { src: "/assets/img/mobile_projects/8.webp",  name: "SAPID" },
+  { src: "/assets/img/mobile_projects/9.webp",  name: "TRUSTlab" },
+  { src: "/assets/img/mobile_projects/10.webp", name: "Abhisree Foundation" },
 ];
 
 const MobileAppProjects = () => {

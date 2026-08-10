@@ -117,7 +117,7 @@ const Contact = () => {
 
       setFormData({ firstName: "", phone: "", email: "", message: "" });
       setErrors({});
-      toast.success("Message sent successfully! We'll get back to you soon.");
+      toast.success(company.forms.success);
     } catch (error) {
       console.error("Error submitting form:", error);
       const errorMessage =
@@ -182,8 +182,8 @@ const Contact = () => {
     },
     {
       k: "Visit us",
-      v: company.address.medium,
-      note: company.address.postalCode,
+      v: company.address.full,
+      note: "Open in Google Maps",
       href: company.maps.place,
       external: true,
       icon: (

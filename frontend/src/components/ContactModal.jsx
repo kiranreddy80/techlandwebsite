@@ -80,7 +80,7 @@ const ContactModal = ({ openModal, setOpenModal }) => {
         ...formData,
         subject: formData.subject || "Website Inquiry (Modal)",
       });
-      toast.success("Message sent! We'll contact you soon.");
+      toast.success(company.forms.success);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       setTimeout(handleClose, 1500);
     } catch (error) {
@@ -146,12 +146,12 @@ const ContactModal = ({ openModal, setOpenModal }) => {
               <div>
                 <span className="cm-info-l">Studio</span>
                 <a
-                  className="cm-info-v"
+                  className="cm-info-v cm-info-v--addr"
                   href={company.maps.place}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {company.address.short}
+                  {company.address.full}
                 </a>
               </div>
             </li>

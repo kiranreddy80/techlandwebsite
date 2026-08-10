@@ -1,12 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm install --prefix frontend",
+  "installCommand": "npm install && npm install --prefix frontend",
   "buildCommand": "npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
   "framework": null,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "comment": "Everything that is not the API is a client-side route and must be handed to index.html, or a direct hit on /portfolio 404s. The negative lookahead keeps /api/* falling through to the serverless functions instead of being swallowed by the SPA.",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

@@ -5,15 +5,52 @@ import { getSEO } from "../../config/seoConfig";
 import company from "../../config/company";
 import "./OurTeam.css";
 
-const ceo = "/assets/media/Assets/ceo.jpeg";
+const ceo = "/assets/media/Assets/ceo.webp";
 
 /**
- * For now this page is a single thing: a message from the founder.
+ * The core team, shown under the founder's note.
  *
- * The disciplines grid, the people grid and the "life at Techland" gallery are
- * commented out at the bottom of this file rather than deleted — they are ready
- * to switch back on once there is real team data and photography to carry them.
+ * `photo` points at the .webp in /core-team — every portrait in that folder
+ * already has one, and they are roughly a tenth the size of the .jpeg beside
+ * them. Spaces are percent-encoded so the filenames survive as URLs.
+ *
+ * `role` is deliberately optional: a member without one renders as a name and
+ * a portrait, and nothing is invented to fill the gap. Add the real titles here
+ * and they appear under each face automatically.
  */
+const PHOTOS = "/assets/media/Assets/core-team";
+const portrait = (file) => `${PHOTOS}/${encodeURIComponent(file)}`;
+
+const TEAM = [
+  // Jagadiswari's portrait is still filed as "HR (1)" — the name the photo
+  // arrived with, not a department. Renaming the file is safe whenever
+  // someone wants to; only this line points at it.
+  { name: "Jagadiswari", role: "HR Department", photo: portrait("HR (1).webp") },
+  { name: "Ram", role: "Mobile Developer Lead", photo: portrait("ram.webp") },
+  { name: "Harsh", role: "Backend Lead", photo: portrait("harsh.webp") },
+  { name: "Bhargavi", role: "Design Head", photo: portrait("Bhargavi.webp") },
+  { name: "Vinay Kumar", role: "Sales Head", photo: portrait("Vinay Kumar.webp") },
+  { name: "Sathish", role: "Lead Tester", photo: portrait("sathish.webp") },
+  { name: "Yashwanth", role: "Frontend Developer Lead", photo: portrait("Yashwanth.webp") },
+  { name: "Raaja", role: "Social Media Head", photo: portrait("raaja.webp") },
+  { name: "Yesu", role: "MERN Developer", photo: portrait("Yesu.webp") },
+  { name: "Vicky", role: "Android Developer", photo: portrait("vicky.webp") },
+  { name: "Keerthana", role: "Tester", photo: portrait("keerthana.webp") },
+  { name: "Pradeep", role: "Sales Department", photo: portrait("pradeep.webp") },
+  // Two different people share the first name; the AWS portrait is the
+  // DevOps one, the other is the tester above.
+  { name: "Sathish", role: "DevOps Lead", photo: portrait("sathish_aws.webp") },
+];
+
+/** Fallback for a member with no portrait — "Vinay Kumar" becomes "VK". */
+const initials = (name) =>
+  name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
 const SIGNATURE = "Madhu Kadali";
 /** Seconds each letter takes, and the gap before the next one starts. */
 const LETTER_DUR = 0.34;
@@ -51,6 +88,39 @@ const OurTeam = () => {
         }
       },
       { threshold: 0.6 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  /**
+   * The people grid fades its faces in as it arrives, staggered by --i.
+   * Same guard as the signature: no observer, or reduced motion, means show
+   * everything at once rather than leaving the section invisible.
+   */
+  const peopleRef = useRef(null);
+  const [peopleIn, setPeopleIn] = useState(false);
+
+  useEffect(() => {
+    const el = peopleRef.current;
+    if (!el) return;
+
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setPeopleIn(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPeopleIn(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15 }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -245,16 +315,64 @@ const OurTeam = () => {
         </div>
       </section>
 
+      {/* ---------------------------------------------------------- people */}
+      <section
+        className={`ot-people ${peopleIn ? "is-in" : ""}`}
+        ref={peopleRef}
+        aria-labelledby="ot-team-heading"
+      >
+        <div className="ot-container">
+          <div className="ot-head">
+            <span className="ot-eyebrow">
+              <span className="ot-eyebrow-line" aria-hidden="true" />
+              The core team
+            </span>
+            <h2 className="ot-h2" id="ot-team-heading">
+              The people behind{" "}
+              <span className="ot-h2-hl">the work</span>.
+            </h2>
+          </div>
+
+          <div className="ot-people-grid">
+            {TEAM.map((member, i) => (
+              <article
+                className="ot-person"
+                key={`${member.name}-${i}`}
+                style={{ "--i": i }}
+              >
+                <div className="ot-person-art">
+                  {member.photo ? (
+                    <img
+                      src={member.photo}
+                      alt={`${member.name}, ${company.shortName}`}
+                      loading="lazy"
+                      decoding="async"
+                      width="220"
+                      height="220"
+                    />
+                  ) : (
+                    <span className="ot-person-initials" aria-hidden="true">
+                      {initials(member.name)}
+                    </span>
+                  )}
+                  <span className="ot-person-ring" aria-hidden="true" />
+                </div>
+                <h3>{member.name}</h3>
+                {member.role && <p>{member.role}</p>}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ------------------------------------------------------------------
-          Parked for now — switch back on when there is real team data and
-          consistent photography behind them.
+          Still parked — switch back on when there is data behind them.
 
             • Disciplines grid  (frontend / backend / design / growth / QA)
-            • People grid       (driven by GET /api/team)
             • Life at Techland  (driven by GET /api/activities)
 
-          The styles for all three are still in OurTeam.css under the same
-          class names, so re-enabling is a matter of restoring the markup.
+          The styles for both are still in OurTeam.css under the same class
+          names, so re-enabling is a matter of restoring the markup.
       ------------------------------------------------------------------ */}
     </div>
   );

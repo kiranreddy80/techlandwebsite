@@ -182,7 +182,9 @@
   flex-direction: column;
   gap: 12px;
 }
-.cm-info li { display: flex; align-items: center; gap: 12px; }
+/* Top-aligned, not centred: the studio row is a full postal address that runs
+   to several lines, and a vertically-centred icon drifts away from its label. */
+.cm-info li { display: flex; align-items: flex-start; gap: 12px; }
 .cm-info-ico {
   width: 30px; height: 30px;
   display: inline-flex;
@@ -217,6 +219,15 @@
   text-decoration: none;
   transition: color 0.18s ease;
 }
+/* The email and phone above are single unbreakable tokens, so they truncate.
+   The address is prose and must never be clipped — show it in full. */
+.cm-info-v--addr {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.45;
+}
+
 a.cm-info-v:hover,
 a.cm-info-v:focus-visible {
   color: #ffffff;

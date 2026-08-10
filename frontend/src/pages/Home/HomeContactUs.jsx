@@ -127,7 +127,7 @@ const HomeContactUs = () => {
       setErrors({});
 
       // Show success toast
-      toast.success("Message sent successfully! We'll get back to you soon.");
+      toast.success(company.forms.success);
     } catch (error) {
       console.error("Error submitting form:", error);
       const errorMessage =
@@ -207,7 +207,7 @@ const HomeContactUs = () => {
                 rel="noopener noreferrer"
               >
                 <span className="cu-direct-k">Studio</span>
-                <span className="cu-direct-v">{company.address.medium}</span>
+                <span className="cu-direct-v">{company.address.full}</span>
               </a>
             </div>
           </div>
@@ -474,6 +474,7 @@ const HomeContactUs = () => {
         }
         .cu-direct-v {
           font-size: 14.5px;
+          line-height: 1.5;
           color: #0a0a0a;
           transition: color 0.3s ease;
         }

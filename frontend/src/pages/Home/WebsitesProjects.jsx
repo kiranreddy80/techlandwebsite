@@ -86,7 +86,7 @@ const WebsitesProjects = () => {
   return (
     <section
       className="bg-smoke space wp-section"
-      style={{ backgroundImage: "url(/assets/img/bg/team_bg_1.png)" }}
+      style={{ backgroundImage: "url(/assets/img/bg/team_bg_1.webp)" }}
     >
       <style>{`
         /* ============================================================

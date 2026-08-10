@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "TechLand Fullstack Application",
   "main": "index.js",
+  "//type": "The serverless functions in /api are ES modules. Without this, Node and the Vercel runtime parse them as CommonJS and the import statements throw at cold start. frontend/ and backend/ have their own package.json, so this does not affect them.",
+  "type": "module",
   "scripts": {
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../Admin && npm install",
     "backend": "npm run dev --prefix backend",
@@ -11,6 +13,9 @@
     "build": "npm run build --prefix frontend",
     "build:admin": "npm run build --prefix Admin",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\" \"npm run admin\""
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.13"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

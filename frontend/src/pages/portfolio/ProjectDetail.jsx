@@ -225,7 +225,7 @@ const ProjectDetail = () => {
       <div className="breadcumb-area style2 bg-smoke4">
         <div
           className="breadcumb-wrapper"
-          style={{ backgroundImage: 'url("/assets/img/bg/breadcumb-bg.jpg")' }}
+          style={{ backgroundImage: 'url("/assets/img/bg/breadcumb-bg.webp")' }}
           data-aos="fade-in"
           data-aos-duration="1500"
         >
@@ -258,7 +258,7 @@ const ProjectDetail = () => {
                   src={
                     project.details_image ||
                     project.image ||
-                    "/assets/img/default-project.jpg"
+                    "/assets/img/default-project.webp"
                   }
                   alt={project.title}
                   className="project-image"
@@ -420,7 +420,7 @@ const ProjectDetail = () => {
                     >
                       <div className="related-image">
                         <img
-                          src={proj.image || "/assets/img/default-project.jpg"}
+                          src={proj.image || "/assets/img/default-project.webp"}
                           alt={proj.title}
                         />
                         {proj.platform && (

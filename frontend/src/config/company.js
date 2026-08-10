@@ -53,15 +53,14 @@ const company = {
     postalCode: "500081",
     country: "IN",
 
-    /** "Madhapur, Hyderabad" — for tight spaces like the contact modal. */
-    get short() {
-      return `${this.area}, ${this.city}`;
-    },
-    /** "Kavuri Hills, Madhapur, Hyderabad" — for contact cards. */
-    get medium() {
-      return `${this.locality}, ${this.area}, ${this.city}`;
-    },
-    /** The complete postal address — for the footer and structured data. */
+    /**
+     * The complete postal address — the ONLY form shown to visitors.
+     *
+     * There used to be `short` and `medium` variants for tight spaces, which
+     * meant the studio address read three different ways depending on which
+     * component you landed on. Every surface now renders this one string; if a
+     * layout is too cramped for it, fix the layout, don't shorten the address.
+     */
     get full() {
       return `${this.line1}, ${this.line2}, ${this.locality}, ${this.area}, ${this.city}, ${this.state} ${this.postalCode}`;
     },
@@ -101,6 +100,14 @@ const company = {
   hours: {
     display: "Mon – Sat, 10:00 – 19:00 IST",
     schema: "Mo-Sa 10:00-19:00",
+  },
+
+  /* ------------------------------------------------------------- messaging */
+  // What a visitor is told once a form goes through. It is a promise about
+  // response time, so it lives here with the rest of the commitments rather
+  // than being retyped — slightly differently — in each of the three forms.
+  forms: {
+    success: "Thank you! Our team will reach out to you within the next 2 hours.",
   },
 
   /* ------------------------------------------------- credentials & claims */

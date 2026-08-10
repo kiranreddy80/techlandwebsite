@@ -9,3 +9,7 @@ node_modules
 # Build output
 .vite
 *.log
+
+# Hand-off archives. Zipping dist/ to send somewhere is fine; committing a
+# 240MB zip of files already tracked beside it is not.
+*.zip

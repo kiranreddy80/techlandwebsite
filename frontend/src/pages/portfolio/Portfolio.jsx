@@ -39,83 +39,92 @@ const categoryIcons = {
 };
 import config from "../../config";
 
+/**
+ * The bundled catalogue, flattened once at module scope.
+ *
+ * Every project here ships inside the JS bundle, so it owes nothing to the
+ * network and can be on screen at first paint.
+ */
+const buildStaticProjects = () => {
+  if (!categories || typeof categories !== "object") return [];
+
+  const out = [];
+  for (const categoryKey in categories) {
+    (categories[categoryKey] || []).forEach((project) => {
+      if (project && project.title) {
+        const id = project.id
+          ? `${categoryKey}-${project.id}`
+          : `${categoryKey}-${project.title.replace(/\s+/g, "-")}`;
+        out.push({ ...project, id, category: categoryKey });
+      }
+    });
+  }
+  return out;
+};
+
+const STATIC_PROJECTS = buildStaticProjects();
+const STATIC_CATEGORIES = ["All", ...new Set(STATIC_PROJECTS.map((p) => p.category))];
+
 const Portfolio = () => {
   const seo = getSEO("portfolio");
-  const [allProjects, setAllProjects] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
+  const [allProjects, setAllProjects] = useState(STATIC_PROJECTS);
+  const [categoryList, setCategoryList] = useState(STATIC_CATEGORIES);
   const [selectedCategories, setSelectedCategories] = useState(["All"]);
   const [activeProjectType, setActiveProjectType] = useState("all");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const backendUrl = config.ASSETS_URL;
 
+  // Only a genuinely empty bundle is an error. An unreachable API is not.
+  const error = STATIC_PROJECTS.length
+    ? null
+    : "Project data is not available or is in an incorrect format.";
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    let cancelled = false;
+
+    /**
+     * Admin-managed projects are an ADDITION to the page, never a gate on it.
+     *
+     * This used to run the other way round: `loading` started true and the
+     * spinner held the whole page until the request settled. With the backend
+     * unreachable that is the full 15s axios timeout spent staring at a
+     * spinner — for projects that were sitting in the bundle the entire time.
+     */
+    const loadDynamic = async () => {
       try {
-        // Fetch dynamic projects from API
-        let dynamicProjects = [];
-        try {
-          const { data } = await api.get("/projects");
-          dynamicProjects = data.map(p => ({
+        const { data } = await api.get("/projects");
+        if (cancelled || !Array.isArray(data)) return;
+
+        const dynamic = data
+          .filter((p) => p.isActive !== false)
+          .map((p) => ({
             ...p,
             id: p._id,
             platform: "Web", // Default for dynamic, or could be part of model
-            image: p.image.startsWith("http") ? p.image : `${backendUrl}${p.image}`
+            image: p.image?.startsWith("http")
+              ? p.image
+              : `${backendUrl}${p.image}`,
           }));
-        } catch (apiErr) {
-          console.error("API Fetch failed, using static data only", apiErr);
-        }
 
-        if (
-          categories &&
-          typeof categories === "object" &&
-          categories !== null
-        ) {
-          const staticProjects = [];
+        // An empty API response is not a reason to redraw the section.
+        if (!dynamic.length) return;
 
-          for (const categoryKey in categories) {
-            const categoryProjects = categories[categoryKey];
-            categoryProjects.forEach((project) => {
-              if (project && project.title) {
-                const id = project.id
-                  ? `${categoryKey}-${project.id}`
-                  : `${categoryKey}-${project.title.replace(/\s+/g, "-")}`;
-                staticProjects.push({
-                  ...project,
-                  id,
-                  category: categoryKey,
-                });
-              }
-            });
-          }
-
-          // Merge both
-          const combined = [...dynamicProjects.filter(p => p.isActive !== false), ...staticProjects];
-          setAllProjects(combined);
-
-          // Get unique categories
-          const cats = ["All", ...new Set(combined.map(p => p.category))];
-          setCategoryList(cats);
-        } else {
-          setError(
-            "Project data is not available or is in an incorrect format."
-          );
-          setAllProjects([]);
-          setCategoryList([]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch portfolio data:", err);
-        setError("Failed to load projects. Please try again later.");
-        setAllProjects([]);
-        setCategoryList([]);
-      } finally {
-        setLoading(false);
+        const combined = [...dynamic, ...STATIC_PROJECTS];
+        setAllProjects(combined);
+        setCategoryList(["All", ...new Set(combined.map((p) => p.category))]);
+      } catch (apiErr) {
+        console.warn(
+          "[/projects] API unavailable, showing bundled projects.",
+          apiErr?.message
+        );
       }
     };
-    fetchData();
-  }, []);
+
+    loadDynamic();
+    return () => {
+      cancelled = true;
+    };
+  }, [backendUrl]);
 
   const handleCategoryToggle = (category) => {
     if (category === "All") {
@@ -179,15 +188,6 @@ const Portfolio = () => {
     setShowFilters(!showFilters);
   };
 
-  if (loading) {
-    return (
-      <div className="loading-wrapper">
-        <div className="spinner"></div>
-        <p>Loading Projects...</p>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="error-wrapper">
@@ -208,7 +208,7 @@ const Portfolio = () => {
       <div className="breadcumb-area style2 bg-smoke4">
         <div
           className="breadcumb-wrapper"
-          style={{ backgroundImage: 'url("/assets/img/bg/breadcumb-bg.jpg")' }}
+          style={{ backgroundImage: 'url("/assets/img/bg/breadcumb-bg.webp")' }}
         >
           <div className="container">
             <div className="breadcumb-content">
@@ -363,7 +363,7 @@ const Portfolio = () => {
                             <img
                               src={
                                 project.image ||
-                                "/assets/img/default-project.jpg"
+                                "/assets/img/default-project.webp"
                               }
                               alt={project.title}
                             />
