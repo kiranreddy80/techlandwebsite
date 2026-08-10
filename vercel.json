@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm install && npm install --prefix frontend",
+  "comment-install": "Root deps first (nodemailer, for the /api function), then the frontend's own. The subshell matters: `npm install --prefix frontend` run from the root makes npm treat the ROOT package as something to install into frontend, and it writes a self-referential \"techland-fullstack\": \"file:..\" into frontend/package.json. Changing directory first avoids that entirely.",
+  "installCommand": "npm install && (cd frontend && npm install)",
   "buildCommand": "npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
   "framework": null,
