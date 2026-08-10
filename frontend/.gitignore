@@ -25,7 +25,18 @@ dist-ssr
 # ===============================
 # BACKEND (ignore completely)
 # ===============================
-api/
+# A bare `api/` matches a directory of that name at ANY depth, which silently
+# swallowed both public/api/contact.php and its built copy in dist/. Anchored
+# to the frontend root so it only covers what it was meant to.
+/api/
+
+# The contact endpoint deployed alongside the site on PHP hosting, and the
+# copy the build emits. Without these the uploaded dist/ has no /api/contact
+# and every enquiry fails.
+!public/api/
+!public/api/**
+!dist/api/
+!dist/api/**
 
 # ===============================
 # ADMIN / DASHBOARD (ignore)
