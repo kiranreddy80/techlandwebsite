@@ -133,11 +133,14 @@ const HomeTestimonials = () => {
           position: relative;
           isolation: isolate;
           overflow: hidden;
-          padding: 96px 0 100px;
+          /* Trailing padding trimmed: the FAQ section below opens with its own
+             generous top padding, and the two stacked into a large empty band
+             under the last review. The lead-in above is unchanged. */
+          padding: 96px 0 56px;
           background: #ffffff;
           color: #0a0a0a;
         }
-        @media (min-width: 1024px) { .ts-section { padding: 124px 0 128px; } }
+        @media (min-width: 1024px) { .ts-section { padding: 124px 0 72px; } }
 
         .ts-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
         .ts-bg::after {

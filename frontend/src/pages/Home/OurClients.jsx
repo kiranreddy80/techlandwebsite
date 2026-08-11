@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 const processBg = "/assets/img/bg/process-1-3-bg.jpg";
 import clientsData from "./clientsData";
 import useApiWithFallback, { resolveImageUrl } from "../../utils/useApiWithFallback";
@@ -20,6 +21,28 @@ const OurClients = () => {
     (c) => ({ id: c._id, name: c.name, img: resolveImageUrl(c.logo) }),
     clientsData
   );
+
+  /**
+   * While the grid is open, the page behind it must not scroll — otherwise a
+   * wheel gesture aimed at the client list drags the whole homepage instead.
+   * Escape closes it, which people expect of anything covering the screen.
+   */
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setIsModalOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isModalOpen]);
 
   return (
     <div>
@@ -95,7 +118,22 @@ const OurClients = () => {
         </div>
       </div>
 
-      {/* Premium Clients Modal - Totally Unique & Attractive Design */}
+      {/* ------------------------------------------------------------------
+          Rendered into <body>, not in place.
+
+          Every page sits inside .pt-stage, which carries a transform and a
+          1400px perspective for the page-transition effect. Those properties
+          make it the containing block for any descendant with
+          position: fixed — so this overlay stopped being measured against the
+          viewport and was sized to the whole stage instead: 1440x9676 at
+          top:-1752, putting the modal roughly 1800px below the fold. Clicking
+          "View all" appeared to do nothing but add a long scroll.
+
+          A portal lifts it out of .pt-stage entirely, so inset:0 means the
+          viewport again. It has to stay mounted (rather than returning null
+          when closed) or the CSS open/close transition has nothing to animate.
+      ------------------------------------------------------------------ */}
+      {createPortal(
       <div
         className={`clients-modal-overlay-unique ${isModalOpen ? "open" : ""}`}
         onClick={() => setIsModalOpen(false)}
@@ -152,7 +190,9 @@ const OurClients = () => {
 
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
+      )}
     </div>
   );
 };

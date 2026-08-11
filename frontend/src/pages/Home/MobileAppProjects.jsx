@@ -154,7 +154,49 @@ const MobileAppProjects = () => {
         /* Extra vertical padding so the scaled-up centre device has room to
            grow without colliding with the heading or the controls. */
         .mp-swiper { overflow: visible !important; padding: 34px 0 26px; }
-        .mp-swiper .swiper-wrapper { align-items: center; }
+        /* Perspective sits on the wrapper because that is the slides' direct
+           parent — on .mp-stage it would only apply to .mp-swiper and the
+           handsets would stay flat. preserve-3d keeps Swiper's own translate
+           on the wrapper from collapsing the depth of its children. */
+        .mp-swiper .swiper-wrapper {
+          align-items: center;
+          perspective: 1600px;
+          transform-style: preserve-3d;
+        }
+
+        /* ---- Depth ----
+           The row used to render every handset identically: same transform,
+           same opacity, same size, so nothing was in focus and the whole
+           section read flat. The only emphasis written was scale(1.12), and
+           it sat inside the prefers-reduced-motion block — which meant the
+           effect showed ONLY for visitors who had asked for less animation,
+           and never for anyone else.
+
+           Now the centred phone stands forward of the row and the ones
+           either side fall back behind it. */
+        .mp-swiper .swiper-slide {
+          transform: scale(0.8) translateZ(-160px);
+          opacity: 0.45;
+          filter: saturate(0.7);
+          transition:
+            transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.7s ease,
+            filter 0.7s ease;
+          will-change: transform, opacity;
+        }
+        .mp-swiper .swiper-slide-prev,
+        .mp-swiper .swiper-slide-next {
+          transform: scale(0.9) translateZ(-80px);
+          opacity: 0.8;
+          filter: saturate(0.9);
+          z-index: 2;
+        }
+        .mp-swiper .swiper-slide-active {
+          transform: scale(1.08) translateZ(0);
+          opacity: 1;
+          filter: none;
+          z-index: 3;
+        }
 
         .mp-slide {
           width: 250px !important;
@@ -179,6 +221,28 @@ const MobileAppProjects = () => {
           width: auto;
         }
         @media (max-width: 768px) { .mp-device { height: 350px; } }
+
+        /* The artwork had no rule of its own outside the reduced-motion block,
+           so it was relying on a global img{max-width} from the template to be
+           sized at all. Stated explicitly here. */
+        .mp-device img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          display: block;
+          border-radius: 22px;
+        }
+
+        /* Shadow on the device rather than the slide: drop-shadow follows the
+           handset's actual silhouette, so the artwork's rounded corners cast
+           a real edge instead of a rectangle behind a transparent PNG. */
+        .mp-device {
+          filter: drop-shadow(0 18px 26px rgba(12, 14, 40, 0.16));
+          transition: filter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .mp-swiper .swiper-slide-active .mp-device {
+          filter: drop-shadow(0 40px 62px rgba(12, 14, 40, 0.36));
+        }
 
         /* ---- Project name, above the phone ----
            Grey for the phones either side, brand gradient for the one in the
@@ -242,17 +306,17 @@ const MobileAppProjects = () => {
           .mp-stack { gap: 8px 16px; margin-top: 22px; }
         }
 
+        /* Reduced motion removes the travel between states, not the hierarchy.
+           The centred handset still reads as the focused one — it simply
+           arrives there without the easing. */
         @media (prefers-reduced-motion: reduce) {
-          .mp-device img,
+          .mp-swiper .swiper-slide,
+          .mp-device,
           .mp-name,
           .mp-stack li {
             transition: none !important;
           }
           .mp-swiper .swiper-slide-active .mp-name { transform: none !important; }
-          .mp-device:hover img { transform: none !important; }
-          /* Keep the centre device emphasised, just without the movement. */
-          .mp-swiper .swiper-slide-active .mp-device img { transform: scale(1.12); }
-          .mp-swiper .swiper-slide-active .mp-device:hover img { transform: scale(1.12); }
         }
       `}</style>
     </div>

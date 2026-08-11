@@ -8,10 +8,21 @@
 
 .faq-morph-section {
     position: relative;
-    padding: 140px 0;
+    /* The top padding used to be 140px and stacked on top of the 128px the
+       testimonials section already ends with — 268px of blank page between
+       the last review and "Information Hub". Halving the top closes that gap
+       without cramping the heading.
+
+       It was also a single flat value with no mobile variant, so a phone got
+       the same 140px as a widescreen. Mobile-first here, desktop below. */
+    padding: 56px 0 96px;
     background: var(--morph-bg);
     overflow: hidden;
     color: var(--morph-text);
+}
+
+@media (min-width: 1024px) {
+    .faq-morph-section { padding: 72px 0 140px; }
 }
 
 .morph-container {
