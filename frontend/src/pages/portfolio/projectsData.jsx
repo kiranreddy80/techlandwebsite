@@ -11,7 +11,6 @@ const meatoweb = "/assets/media/Assets/Projectimg/meatoweb.webp";
 const nudealweb = "/assets/media/Assets/Projectimg/nudealweb.webp";
 const templecityweb = "/assets/media/Assets/Projectimg/templecityweb.webp";
 const workoasisweb = "/assets/media/Assets/Projectimg/workoasisweb.webp";
-const primepantry = "/assets/media/Assets/Projectimg/primepantry.webp";
 const sapid = "/assets/media/Assets/Projectimg/sapid.webp";
 const sapidimage = "/assets/media/Assets/Projectimg/sapiddetail.webp";
 const templecity = "/assets/media/Assets/Projectimg/templecity.webp";
@@ -37,6 +36,23 @@ const Viswam = "/assets/media/Assets/Projectimg/Viswam.webp";
 const Viswamimg = "/assets/media/Assets/Projectimg/Vishwamimg.webp";
 const Trustlab = "/assets/media/Assets/Projectimg/Trustlab_Main.webp";
 const Trustlabimg = "/assets/media/Assets/Projectimg/TrustLab_View.webp";
+const NudealView = "/assets/media/Assets/Projectimg/Nudeal_View.webp";
+const MeatoView = "/assets/media/Assets/Projectimg/MeatO_View.webp";
+const TemplecityView = "/assets/media/Assets/Projectimg/Temple City View.webp";
+const ZenfooWeb = "/assets/media/Assets/Projectimg/Zenfoo_Web.webp";
+const ViswamWeb = "/assets/media/Assets/Projectimg/Viswam_Web.webp";
+const TrustlabWeb = "/assets/media/Assets/Projectimg/Trustlab_Web.webp";
+const BestSeedsWeb = "/assets/media/Assets/Projectimg/BestSeeds_Web.webp";
+const CashExPhone = "/assets/media/Assets/Projectimg/CashEx_Main.webp";
+const ZaapGoPhone = "/assets/media/Assets/Projectimg/ZaapGo_Phone.webp";
+const MyDealPhone = "/assets/media/Assets/Projectimg/MyDeal_Main.webp";
+const MyDealWeb = "/assets/media/Assets/Projectimg/MyDeal_Web.webp";
+const GoCarCleanPhone = "/assets/media/Assets/Projectimg/GoCarClean_Main.webp";
+const GoCarCleanWeb = "/assets/media/Assets/Projectimg/GoCarClean_Web.webp";
+const NudealPhone = "/assets/media/Assets/Projectimg/Nudeal_Main.webp";
+const MeatoPhone = "/assets/media/Assets/Projectimg/MeatO_Main.webp";
+const TemplecityPhone = "/assets/media/Assets/Projectimg/Temple City_Main.webp";
+const YuvarideWeb = "/assets/media/Assets/Projectimg/yuvarideweb.webp";
 const Boti = "/assets/media/Assets/Projectimg/Boutique_Main.webp";
 const Botiimg = "/assets/media/Assets/Projectimg/Boutique_View.webp";
 
@@ -44,64 +60,59 @@ const Botiimg = "/assets/media/Assets/Projectimg/Boutique_View.webp";
 
 
 
+/**
+ * Which mockup to show for a project, per tab.
+ *
+ * The catalogue stores one `image` per project, chosen for whichever platform
+ * the work is best known as. That reads oddly once the list is filtered: NUDEAL
+ * and Meato are mobile products whose card artwork is a laptop, so the Mobile
+ * Apps tab was showing laptops, and the web-only builds are laptop mockups that
+ * would look wrong under Mobile.
+ *
+ * Only overrides live here. A project with no entry — or no artwork for the tab
+ * being viewed — keeps its own `image`, so nothing is ever blank.
+ *
+ * Classified by looking at every file: `X_Main` is a phone for app projects but
+ * a laptop for web ones (GovindaTech, Nama, HCIT, ZaapGo), so the suffix alone
+ * cannot be trusted.
+ */
+export const platformArtwork = {
+  NUDEAL: { mobile: NudealPhone, web: nudealweb },
+  ZENFOO: { web: ZenfooWeb },
+  "MY DEAL": { mobile: MyDealPhone, web: MyDealWeb },
+  "GO CAR CLEAN": { mobile: GoCarCleanPhone, web: GoCarCleanWeb },
+  Meato: { mobile: MeatoPhone, web: meatoweb },
+  "Temple City": { mobile: TemplecityPhone, web: templecityweb },
+  "YUVA RIDE": { mobile: Yuvaride, web: YuvarideWeb },
+  "Cashex Bitebox": { mobile: CashExPhone, web: cashexbiteboxweb },
+  "Best Seeds": { mobile: Bestseeds, web: BestSeedsWeb },
+  SAPID: { mobile: sapid },
+  "Healthcare Solutions": { mobile: Trustlab, web: TrustlabWeb },
+  "Viswam Realty Connect": { mobile: Viswam, web: ViswamWeb },
+  "Botique Dekho": { mobile: Boti },
+  "Pay Wallet": { mobile: Paywallet },
+  "V NEWS": { mobile: Vnews },
+  "POOL PAL": { mobile: poolpal },
+  GOVINDHATECH: { web: Govinda },
+  "NAMA OUTSOURCING": { web: Nama },
+  "HC IT SOLUTIONS": { web: Hcit },
+  "ZAPP GO": { mobile: ZaapGoPhone, web: Zapp },
+};
+
+/** The image a card should use for the tab currently being viewed. */
+export const artworkFor = (project, type) => {
+  const set = platformArtwork[project?.title];
+  return (set && set[type]) || project?.image || "";
+};
+
 export const categories = {
   "E-Commerce": [
-    {
-      id: 1,
-      title: "Zest Findz",
-      description:
-        "An advanced, next-generation e-commerce platform with AI-powered virtual try-on technology.",
-      link: "https://zestfindz.com",
-      technologies_used: [
-        "React",
-        "Node.js",
-        "MongoDB",
-        "AI/ML",
-        "REST API",
-        "Redux",
-        "Firebase",
-      ],
-      status: "Live",
-      platform: "Web & Mobile",
-      image: primepantry, // Using existing image as placeholder
-      details_image: primepantry, // Using existing image as placeholder
-      project_overview:
-        "Zest Findz is an advanced, next-generation e-commerce platform designed to provide a highly interactive and personalized shopping experience. The platform integrates AI-powered virtual try-on technology and intelligent chatbots, enabling customers to make informed purchasing decisions.",
-      features: [
-        "Customer Website: Seamless product browsing and ordering",
-        "Customer Mobile App: Smooth shopping, cart management, and checkout",
-        "Seller App: Vendor onboarding, product listing, pricing, and order management",
-        "AI-powered virtual try-on technology",
-        "Intelligent chatbots for customer assistance",
-      ],
-      timeline: {
-        "Research & Planning": "2 weeks",
-        "UI/UX Design": "3 weeks",
-        Development: "16 weeks",
-        "Testing & QA": "3 weeks",
-        Deployment: "1 week",
-      },
-      challenges: [
-        {
-          problem:
-            "Implementing realistic virtual try-on technology for various product types",
-          solution:
-            "Developed a custom AI/ML solution with computer vision capabilities that accurately maps products to user dimensions",
-        },
-        {
-          problem:
-            "Creating a seamless experience across multiple platforms (web and mobile)",
-          solution:
-            "Built a responsive architecture with shared components and state management to ensure consistency",
-        },
-      ],
-    },
     {
       id: 2,
       title: "NUDEAL",
       description:
         "A comprehensive multi-vendor marketplace that connects customers with a wide range of sellers.",
-      link: "https://nr12brandsshop.in/",
+      link: "https://nudeal.in",
       technologies_used: [
         "Flutter",
         "Firebase",
@@ -113,7 +124,7 @@ export const categories = {
       status: "Live",
       platform: "Mobile",
       image: nudealweb,
-      details_image: nudealweb,
+      details_image: NudealView,
       project_overview:
         "NUDEAL is a comprehensive multi-vendor marketplace that connects customers with a wide range of sellers through a clean, intuitive, and scalable platform.",
       features: [
@@ -159,8 +170,8 @@ export const categories = {
       ],
       status: "Live",
       platform: "Mobile",
-      image: "", // Using existing image as placeholder
-      details_image: "",
+      image: MyDealPhone,
+      details_image: MyDealWeb,
       project_overview:
         "MY DEAL is an innovative reward-based commerce application. Customers purchasing new products receive scratch cards, and winning users are rewarded with doorstep delivery of goods.",
       features: [
@@ -257,7 +268,7 @@ export const categories = {
       status: "Live",
       platform: "Mobile",
       image: meatoweb,
-      details_image: meatoweb,
+      details_image: MeatoView,
       project_overview:
         "Meato is a robust, scalable meat delivery ecosystem built with three dedicated applications to support seamless operations.",
       features: [
@@ -292,7 +303,7 @@ export const categories = {
       title: "Best Seeds",
       description:
         "A seafood delivery and seed supply platform delivering fish, prawns, and related seeds.",
-      link: "",
+      link: "https://bestseed.in",
       technologies_used: [
         "React",
         "Node.js",
@@ -339,7 +350,7 @@ export const categories = {
       title: "SAPID",
       description:
         "A flagship hospitality brand in Hyderabad with 11+ outlets across Telangana.",
-      link: "",
+      link: "https://sapid.co.in",
       technologies_used: [
         "Flutter",
         "Firebase",
@@ -390,7 +401,7 @@ export const categories = {
       title: "ZENFOO",
       description:
         "A multi-vendor grocery, vegetable, and food delivery platform operating in Andhra Pradesh.",
-      link: "",
+      link: "https://zenfoo.in",
       technologies_used: [
         "React",
         "React Native",
@@ -452,7 +463,7 @@ export const categories = {
       status: "Live",
       platform: "Mobile",
       image: templecity,
-      details_image: templecityweb,
+      details_image: TemplecityView,
       project_overview:
         "Temple City is India's first all-in-one devotional services application, designed to digitally connect devotees and priests.",
       features: [
@@ -641,7 +652,7 @@ export const categories = {
       title: "GO CAR CLEAN",
       description:
         "An UrbanClap-like application focused on doorstep vehicle cleaning services.",
-      link: "",
+      link: "https://gocarclean.com",
       technologies_used: [
         "React Native",
         "Node.js",
@@ -652,8 +663,8 @@ export const categories = {
       ],
       status: "Live",
       platform: "Mobile",
-      image: "", // No image available
-      details_image: "", // No image available
+      image: GoCarCleanPhone,
+      details_image: GoCarCleanWeb,
       project_overview:
         "GO CAR CLEAN is an UrbanClap-like application focused on doorstep vehicle cleaning services, offering daily and monthly subscription packages.",
       features: [
@@ -691,7 +702,7 @@ export const categories = {
       title: "Pay Wallet",
       description:
         "A secure digital transaction platform similar to PhonePe and Google Pay.",
-      link: "",
+      link: "https://paywalletinvestment.com",
       technologies_used: [
         "React Native",
         "Node.js",
@@ -790,7 +801,7 @@ export const categories = {
       title: "POOL PAL",
       description:
         "A first-of-its-kind multi-service travel platform offering ride booking, ride sharing, and more.",
-      link: "",
+      link: "https://poolpal.in",
       technologies_used: [
         "React Native",
         "Node.js",
@@ -838,7 +849,7 @@ export const categories = {
       title: "YUVA RIDE",
       description:
         "A ride booking and ride-sharing application similar to Rapido and BlaBlaCar.",
-      link: "",
+      link: "https://yuvaride.com",
       technologies_used: [
         "Flutter",
         "Firebase",

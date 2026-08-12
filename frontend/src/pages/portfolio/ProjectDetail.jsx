@@ -582,16 +582,38 @@ const ProjectDetail = () => {
         .main-column {
           min-width: 0;
         }
+        /* The artwork comes in three shapes — square marketing cards, portrait
+           phone mockups and wide multi-screen collages. a full-width rule with no
+           height limit sized them by whatever they happened to be, so a square
+           1080px image rendered 988x988 and towered over the page while a
+           landscape collage sat short beside it.
+
+           Capping the HEIGHT instead gives every project the same visual
+           weight: the box is a consistent size, the image sits centred inside
+           it at its own proportions, and nothing is stretched or cropped. */
         .project-image-wrapper {
           background: #f2f5fa;
-          border-radius: 8px;
+          border-radius: 14px;
           overflow: hidden;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
           margin-bottom: 30px;
+          display: grid;
+          place-items: center;
+          padding: 22px;
+          min-height: 320px;
         }
         .project-image {
-          width: 100%;
+          max-height: 520px;
+          max-width: 100%;
+          width: auto;
+          height: auto;
+          object-fit: contain;
           display: block;
+          border-radius: 6px;
+        }
+        @media (max-width: 767px) {
+          .project-image-wrapper { padding: 14px; min-height: 220px; }
+          .project-image { max-height: 340px; }
         }
 
         .content-section {

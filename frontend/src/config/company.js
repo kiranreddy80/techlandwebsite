@@ -81,9 +81,11 @@ const company = {
   // Only profiles that actually exist belong here. An empty string means
   // "we don't have this account" and the UI will skip rendering it.
   social: {
-    linkedin: "https://www.linkedin.com/company/techland-it-solutions/",
+    // Note the double "s" — the live company page is techland-it-solutionss.
+    // The single-s spelling that used to be here is a different URL and 404s.
+    linkedin: "https://www.linkedin.com/company/techland-it-solutionss/",
     instagram:
-      "https://www.instagram.com/techlanditsolutions?igsh=MW1hemQ4YngxMWQ2aQ==",
+      "https://www.instagram.com/techlanditsolutions?igsh=bnF2NmhobWdlNTQz",
     facebook: "",
     twitter: "",
     youtube: "",

@@ -620,3 +620,171 @@
   .ot-disc:hover .ot-disc-art img, .ot-person:hover .ot-person-art,
   .ot-life-item:hover img, .ot-btn:hover { transform: none !important; }
 }
+
+/* ============================================================ the gallery
+   Replaces the grid of headshots. A grid of thirteen faces answers "who
+   works here"; a strip of photographs answers "what is it like there",
+   which is the question the page is actually being asked.
+
+   Built on native scrolling rather than a carousel library: a trackpad
+   swipe, a touch drag, the arrow keys and the buttons all drive the same
+   overflow, and nothing needs JavaScript to be readable.
+   ========================================================================= */
+.tg {
+  padding: 84px 0 90px;
+  overflow: hidden; /* the rail bleeds right; keep the page from scrolling */
+}
+
+.tg-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.tg-head .ot-h2 { margin-top: 12px; }
+
+/* ---------------------------------------------------------------- arrows */
+.tg-controls { display: flex; gap: 10px; flex-shrink: 0; padding-bottom: 6px; }
+
+.tg-arrow {
+  width: 46px; height: 46px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--rule, rgba(10, 10, 26, 0.14));
+  background: #ffffff;
+  color: var(--ink, #0a0a1a);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.tg-arrow svg {
+  width: 19px; height: 19px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.tg-arrow:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--g1, #163198), var(--g2, #4f46e5) 55%, var(--g3, #7c3aed));
+  border-color: transparent;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+/* Kept visible but inert at the ends, so the row does not reflow mid-scroll. */
+.tg-arrow:disabled { opacity: 0.32; cursor: default; }
+
+/* ------------------------------------------------------------------ rail */
+.tg-rail {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: max(20px, calc((100vw - 1280px) / 2 + 32px));
+  /* Starts flush with the heading, runs off the right edge. */
+  padding: 4px max(20px, calc((100vw - 1280px) / 2 + 32px)) 30px;
+  scrollbar-width: none;
+  cursor: grab;
+  overscroll-behavior-x: contain;
+}
+.tg-rail::-webkit-scrollbar { display: none; }
+.tg-rail:active { cursor: grabbing; }
+.tg-rail:focus-visible { outline: 2px solid var(--g2, #4f46e5); outline-offset: 4px; border-radius: 8px; }
+
+/* ----------------------------------------------------------------- cards */
+.tg-card {
+  flex: 0 0 auto;
+  margin: 0;
+  scroll-snap-align: start;
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(min(var(--i) * 80ms, 640ms));
+}
+.tg.is-in .tg-card { opacity: 1; transform: none; }
+
+/* Three widths, so the strip has a rhythm instead of a beat. */
+.tg-card--wide    { width: min(560px, 82vw); }
+.tg-card--regular { width: min(380px, 70vw); }
+.tg-card--narrow  { width: min(260px, 56vw); }
+
+.tg-frame {
+  position: relative;
+  /* A fixed height, not an aspect ratio. With the cards at three different
+     widths, `aspect-ratio` gave three different heights and the strip looked
+     ragged along the bottom. Height is now the constant and the widths vary
+     around it; object-fit: cover crops each photograph to suit. */
+  height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--sunken, #f1f0f6);
+  box-shadow: 0 2px 4px rgba(10, 10, 40, 0.05), 0 24px 44px -28px rgba(10, 10, 40, 0.5);
+  transition: box-shadow 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tg-frame img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.tg-card:hover .tg-frame { box-shadow: 0 2px 4px rgba(10,10,40,0.05), 0 34px 60px -26px rgba(79,70,229,0.6); }
+.tg-card:hover .tg-frame img { transform: scale(1.045); }
+
+/* Reads the caption against a photograph of any brightness. */
+.tg-scrim {
+  position: absolute; inset: auto 0 0 0; height: 55%;
+  background: linear-gradient(180deg, transparent, rgba(8, 8, 24, 0.72));
+  opacity: 0; transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.tg-card:hover .tg-scrim { opacity: 1; }
+
+/* -------------------------------------------------------------- captions */
+.tg-cap { display: flex; flex-direction: column; gap: 3px; padding: 14px 2px 0; }
+.tg-tag {
+  font-family: ui-monospace, monospace;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--faint, #8b86a0);
+}
+.tg-title {
+  font-family: "Play", sans-serif;
+  font-size: 15.5px; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink, #0a0a1a);
+}
+
+/* -------------------------------------------------------------- progress */
+.tg-progress {
+  height: 2px;
+  background: var(--rule, rgba(10, 10, 26, 0.12));
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.tg-progress span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--g1, #163198), var(--g2, #4f46e5) 55%, var(--g3, #7c3aed));
+  transform-origin: left;
+  transition: transform 0.18s ease-out;
+}
+
+@media (max-width: 767px) {
+  .tg { padding: 62px 0 68px; }
+  .tg-head { flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: 28px; }
+  .tg-rail { gap: 14px; padding-left: 20px; padding-right: 20px; scroll-padding-left: 20px; }
+  .tg-cap { padding-top: 11px; }
+  .tg-frame { height: 240px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-card,
+  .tg-frame,
+  .tg-frame img,
+  .tg-scrim,
+  .tg-progress span,
+  .tg-arrow { transition: none !important; }
+  .tg-rail { scroll-behavior: auto; }
+  .tg-card:hover .tg-frame img { transform: none; }
+}

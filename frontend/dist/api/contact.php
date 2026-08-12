@@ -21,14 +21,22 @@
 const ADMIN_EMAIL = 'info@techlanditsolutions.com';
 
 /**
- * The From: address. This MUST be a mailbox on this domain.
+ * The From: address. This MUST be a mailbox that really exists.
  *
- * Sending "From: <the visitor's gmail>" is the classic mistake: the domain
- * has no authority to send as gmail.com, so SPF and DMARC fail and the mail
- * is binned as forgery. The visitor's address goes in Reply-To instead, so
- * hitting reply in the inbox still answers them directly.
+ * It was noreply@ and nothing arrived. The domain's MX points at
+ * SMTP.GOOGLE.com, so mail is hosted on Google Workspace — and Google is
+ * strict about messages claiming to come from an address on a domain it hosts
+ * but cannot find. noreply@ was never created, so it had nowhere to belong.
+ *
+ * info@ is a real mailbox, and the domain's SPF authorises Hostinger to send
+ * on its behalf, so this passes the checks that were failing. Sending from
+ * info@ to info@ is normal for a contact form.
+ *
+ * Sending "From: <the visitor's gmail>" would be the other classic mistake:
+ * this domain has no authority to send as gmail.com. The visitor goes in
+ * Reply-To instead, so hitting reply still answers them directly.
  */
-const FROM_EMAIL = 'noreply@techlanditsolutions.com';
+const FROM_EMAIL = 'info@techlanditsolutions.com';
 const FROM_NAME  = 'Techland Website';
 
 // ----------------------------------------------------------------- setup

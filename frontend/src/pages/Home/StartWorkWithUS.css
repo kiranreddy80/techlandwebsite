@@ -140,40 +140,27 @@
     filter: blur(40px);
 }
 
+/* The handset used to be drawn here in CSS — a black background, an 8px
+   border, a rounded corner and a ::before notch — because the video inside
+   was screen content only. The screenshots that replaced it are full device
+   shots with their own bezel and transparent surround, so this is now just
+   the stage they sit on. Painting a second frame around them would show a
+   phone inside a phone. */
 .video-window {
     width: 320px;
     aspect-ratio: 9 / 19.5;
-    background: #000;
-    border-radius: 44px;
-    overflow: hidden;
-    border: 8px solid #1a1a1a;
-    box-shadow: 0 60px 120px rgba(0, 0, 0, 0.8);
     position: relative;
     z-index: 2;
     transform: perspective(1500px) rotateY(-12deg) rotateX(2deg);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
     margin: 0 auto;
-}
-
-/* Phone Notch Decoration */
-.video-window::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 25px;
-    background: #1a1a1a;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    z-index: 10;
+    /* Follows the handset's silhouette rather than boxing it. */
+    filter: drop-shadow(0 45px 90px rgba(0, 0, 0, 0.75));
 }
 
 .video-window:hover {
     transform: perspective(1500px) rotateY(0deg) rotateX(0deg) scale(1.05);
-    border-color: #6366f1;
-    box-shadow: 0 40px 100px rgba(99, 102, 241, 0.2);
+    filter: drop-shadow(0 40px 90px rgba(99, 102, 241, 0.45));
 }
 
 /* HUD Decorative Elements */
@@ -223,12 +210,26 @@
     white-space: nowrap;
 }
 
-.video-window video {
+/* Every screen is stacked in the same place; only the live one is opaque, so
+   the change between projects is a crossfade rather than a jump. contain (not
+   cover) because these are whole devices — cover would crop the bezel off. */
+.video-window .cta-screen {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0.8;
-    transition: opacity 0.5s;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    pointer-events: none;
+}
+
+.video-window .cta-screen.is-live {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .video-window .cta-screen { transition: none; }
 }
 
 .video-window:hover video {

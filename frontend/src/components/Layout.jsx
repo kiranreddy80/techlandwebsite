@@ -4,6 +4,7 @@ import Footer from "./Footer.jsx";
 import GlobalUtilities from "./GlobalUtilities.jsx";
 import SeasonalDecor from "./SeasonalDecor.jsx";
 import WhatsAppFloat from "./WhatsAppFloat.jsx";
+import ChatWidget from "./ChatWidget.jsx";
 import PageTransition from "./PageTransition.jsx";
 
 function Layout({ setOpenContactModal }) {
@@ -21,6 +22,7 @@ function Layout({ setOpenContactModal }) {
       <Footer />
       <GlobalUtilities />
       <WhatsAppFloat />
+      <ChatWidget />
     </div>
   );
 }

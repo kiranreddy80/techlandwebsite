@@ -1,14 +1,49 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./StartWorkWithUS.css";
 
+/**
+ * The apps shown in the handset beside the call to action.
+ *
+ * Add or remove a line and the rotation follows — nothing else to change.
+ * Each file is the full device shot, bezel included, which is why the frame
+ * around it is transparent rather than the CSS-drawn phone it used to be.
+ */
+const SHOWCASE = [
+  { src: "/assets/img/mobile_projects/1.webp", name: "Zenfoo" },
+  { src: "/assets/img/mobile_projects/2.webp", name: "Best Seeds" },
+  { src: "/assets/img/mobile_projects/3.webp", name: "Market Yatra" },
+  { src: "/assets/img/mobile_projects/6.webp", name: "Temple City" },
+  { src: "/assets/img/mobile_projects/7.webp", name: "Yuva Ride" },
+];
+
+/** How long each screen holds before the next fades in. */
+const SCREEN_MS = 3200;
+
 const StartWorkWithUS = () => {
   const { setOpenContactModal } = useOutletContext();
+  const [screen, setScreen] = useState(0);
 
   useEffect(() => {
     AOS.init({ once: true });
+  }, []);
+
+  /**
+   * Rotate the handset screens. Held still for anyone who has asked for
+   * reduced motion — a crossfade that never stops is exactly what that
+   * setting exists to prevent.
+   */
+  useEffect(() => {
+    if (SHOWCASE.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const id = setInterval(
+      () => setScreen((i) => (i + 1) % SHOWCASE.length),
+      SCREEN_MS
+    );
+    return () => clearInterval(id);
   }, []);
 
   return (
@@ -63,13 +98,23 @@ const StartWorkWithUS = () => {
               <div className="hud-corner bottom-right"></div>
               <div className="video-scanner"></div>
 
-              <video
-                src="/assets/img/mobile_projects/start-work.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
+              {/* The screens used to be a baked-in 15s MP4, which meant the
+                  line-up could only be changed by re-exporting the video —
+                  and it played at 280x520 into a 319x711 box, so it was
+                  upscaled and soft. These are the project screenshots at
+                  818x1600, crossfading on a timer. Adding or removing a
+                  project is now a line in SHOWCASE above. */}
+              {SHOWCASE.map((shot, i) => (
+                <img
+                  key={shot.src}
+                  className={`cta-screen ${i === screen ? "is-live" : ""}`}
+                  src={shot.src}
+                  alt={`${shot.name} mobile app built by Techland IT Solutions`}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  aria-hidden={i === screen ? undefined : true}
+                />
+              ))}
             </div>
 
             {/* Technical HUD Markers */}

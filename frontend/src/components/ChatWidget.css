@@ -1,0 +1,180 @@
+/* Chat bubble and panel.
+   Bottom-right on purpose: the WhatsApp float owns bottom-left, so the two
+   never collide. Rendered through a portal into <body> — see ChatWidget.jsx —
+   because .pt-stage's transform would otherwise clip anything position:fixed. */
+
+.cw-bubble {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #163198, #4f46e5 55%, #7c3aed);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2147483000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 34px -10px rgba(79, 70, 229, 0.75);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cw-bubble svg {
+  width: 25px; height: 25px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+}
+.cw-bubble:hover { transform: translateY(-3px) scale(1.04); }
+.cw-bubble.is-open { transform: rotate(90deg); }
+.cw-bubble:focus-visible { outline: 3px solid #7c3aed; outline-offset: 3px; }
+
+/* ------------------------------------------------------------------ panel */
+.cw-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 94px;
+  width: 360px;
+  /* Never taller than the space actually available, so it cannot run off the
+     top of the window on a short screen. */
+  max-height: min(560px, calc(100vh - 130px));
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 30px 70px -24px rgba(10, 10, 40, 0.55), 0 2px 6px rgba(10, 10, 40, 0.08);
+  z-index: 2147483001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.97);
+  transform-origin: bottom right;
+  transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.26s;
+}
+.cw-panel.is-open { opacity: 1; visibility: visible; transform: none; }
+
+.cw-head {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px 15px;
+  background: linear-gradient(135deg, #163198, #4f46e5 60%, #7c3aed);
+  color: #fff;
+  flex-shrink: 0;
+}
+.cw-who { display: flex; flex-direction: column; line-height: 1.25; flex: 1; min-width: 0; }
+.cw-who strong { font-family: "Play", sans-serif; font-size: 14.5px; letter-spacing: -0.01em; }
+.cw-status { font-size: 11px; opacity: 0.85; }
+
+.cw-avatar {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: grid; place-items: center;
+  font-family: "Play", sans-serif; font-weight: 700; font-size: 15px;
+}
+.cw-x { background: none; border: none; color: #fff; cursor: pointer; padding: 4px; border-radius: 6px; display: inline-flex; }
+.cw-x svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.cw-x:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* ----------------------------------------------------------------- thread */
+.cw-body {
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  background: #f7f7fb;
+  overflow-y: auto;
+  flex-shrink: 0;
+  max-height: 180px;
+}
+.cw-msg { font-size: 13.5px; line-height: 1.5; padding: 9px 12px; border-radius: 14px; max-width: 90%; }
+.cw-msg--bot { background: #fff; color: #16141f; border-bottom-left-radius: 5px; box-shadow: 0 1px 3px rgba(10,10,40,0.07); }
+.cw-msg--me {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+  word-break: break-word;
+}
+.cw-msg--ok { border-left: 3px solid #1b6b45; }
+
+/* ---------------------------------------------------------------- inputs */
+.cw-foot { display: flex; gap: 8px; padding: 11px; border-top: 1px solid #eceaf3; background: #fff; flex-shrink: 0; }
+.cw-foot input {
+  flex: 1; min-width: 0;
+  border: 1px solid #e2dfeb; border-radius: 999px;
+  padding: 10px 14px; font-size: 13.5px; outline: none;
+  font-family: inherit; color: #16141f; background: #fff;
+}
+.cw-foot input:focus { border-color: #7c3aed; }
+.cw-foot button {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border: none; border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.cw-foot button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cw-foot button:disabled { opacity: 0.45; cursor: default; }
+
+/* Scrolls on its own, so a small window shrinks this rather than pushing the
+   send button off the bottom of the panel. */
+.cw-details {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 13px; border-top: 1px solid #eceaf3; background: #fff;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.cw-field { display: flex; flex-direction: column; gap: 4px; }
+.cw-field > span {
+  font-family: ui-monospace, monospace;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #8b86a0;
+}
+.cw-field input,
+.cw-field textarea {
+  border: 1px solid #e2dfeb; border-radius: 10px;
+  padding: 9px 11px; font-size: 13.5px;
+  font-family: inherit; color: #16141f; background: #fff;
+  outline: none; width: 100%;
+}
+.cw-field textarea { resize: vertical; min-height: 62px; line-height: 1.5; }
+.cw-field input:focus,
+.cw-field textarea:focus { border-color: #7c3aed; }
+
+/* Pinned to the bottom of the scrolling form. Without this the buttons sit at
+   the end of the content and fall below the panel on a short window. */
+.cw-actions {
+  display: flex; gap: 8px;
+  position: sticky;
+  bottom: -13px;
+  background: #fff;
+  padding: 10px 0 0;
+  margin-top: 2px;
+  box-shadow: 0 -10px 12px -10px rgba(10, 10, 40, 0.14);
+}
+.cw-send {
+  flex: 1;
+  border: none; border-radius: 10px; padding: 11px 14px;
+  background: linear-gradient(135deg, #163198, #4f46e5 55%, #7c3aed);
+  color: #fff; font-family: "Play", sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
+.cw-back {
+  border: 1px solid #e2dfeb; border-radius: 10px; padding: 11px 14px;
+  background: #fff; color: #45415a; font-size: 13.5px; cursor: pointer;
+  font-family: inherit;
+}
+.cw-send:disabled, .cw-back:disabled { opacity: 0.6; cursor: default; }
+.cw-err { margin: 0; font-size: 12.5px; line-height: 1.45; color: #a52218; }
+
+@media (max-width: 520px) {
+  .cw-bubble { right: 16px; bottom: 16px; width: 54px; height: 54px; }
+  .cw-panel { right: 10px; left: 10px; width: auto; bottom: 80px; max-height: calc(100vh - 110px); }
+  .cw-body { max-height: 132px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cw-bubble, .cw-panel { transition: none !important; }
+  .cw-bubble.is-open { transform: none; }
+}

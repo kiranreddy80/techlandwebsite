@@ -96,12 +96,12 @@ const practices = [
 
 /** Real project artwork, replacing the template's stock illustrations. */
 const showcase = [
-  { src: "/assets/media/Assets/Projectimg/nudealweb.png", alt: "Nudeal e-commerce website" },
-  { src: "/assets/media/Assets/Projectimg/meato.png", alt: "MeatO food delivery app" },
-  { src: "/assets/media/Assets/Projectimg/templecityweb.png", alt: "Temple City platform" },
-  { src: "/assets/media/Assets/Projectimg/sapid.png", alt: "SAPID hospitality app" },
-  { src: "/assets/media/Assets/Projectimg/savaari.png", alt: "Savaari travel platform" },
-  { src: "/assets/media/Assets/Projectimg/findHR.png", alt: "FindHR recruitment platform" },
+  { src: "/assets/media/Assets/Projectimg/Trustlab_Main.webp", alt: "TrustLab healthcare testing app" },
+  { src: "/assets/media/Assets/Projectimg/YuvaRide_Main.webp", alt: "Yuva Ride ride-booking app" },
+  { src: "/assets/media/Assets/Projectimg/GoCarClean_Main.webp", alt: "Go Car Clean car detailing app" },
+  { src: "/assets/media/Assets/Projectimg/sapid.webp", alt: "SAPID hospitality app" },
+  { src: "/assets/media/Assets/Projectimg/ZaapGo_Phone.webp", alt: "SGD Electric vehicle app" },
+  { src: "/assets/media/Assets/Projectimg/Zenfoo_Main.webp", alt: "Zenfoo grocery delivery app" },
 ];
 
 /* ------------------------------------------------------------------ hooks */

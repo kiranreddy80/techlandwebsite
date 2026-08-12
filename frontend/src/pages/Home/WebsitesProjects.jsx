@@ -36,7 +36,10 @@ const WebsitesProjects = () => {
     Object.keys(categories).forEach((categoryKey) => {
       const categoryProjects = categories[categoryKey];
       const webProjectsInCategory = categoryProjects
-        .filter((project) => project.platform === "Web")
+        // Same exact-match trap the portfolio tabs had: only three projects
+        // are filed as literally "Web". The rest are "Web & Mobile" or
+        // "Mobile & Web", so matching the whole string dropped six of the nine.
+        .filter((project) => /web/i.test(project.platform || ""))
         .map((project) => ({
           ...project,
           category: categoryKey,
@@ -55,8 +58,9 @@ const WebsitesProjects = () => {
     }));
 
     // Show 2 dynamic (if available) and fill rest with static
-    const combined = [...mappedDynamic, ...staticWebProjects];
-    return combined.slice(0, 7);
+    // No cap: the card cycles through them one at a time, so every web build
+    // gets its turn rather than the list stopping at seven.
+    return [...mappedDynamic, ...staticWebProjects];
   }, [dynamicProjects]);
 
   /**

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import SEO from "../../components/SEO";
 import api from "../../services/api";
 import { getSEO } from "../../config/seoConfig";
-import { categories } from "./projectsData";
+import { categories, artworkFor } from "./projectsData";
 
 const categoryIcons = {
   All: { icon: "📋", color: "#475569", bgColor: "#f8fafc" },
@@ -64,6 +64,35 @@ const buildStaticProjects = () => {
 
 const STATIC_PROJECTS = buildStaticProjects();
 const STATIC_CATEGORIES = ["All", ...new Set(STATIC_PROJECTS.map((p) => p.category))];
+
+/**
+ * Which tab a project belongs under.
+ *
+ * The tabs used to test `platform === "Android" || platform === "iOS"` for
+ * mobile and `platform === "Web"` for web. Nothing in the catalogue is filed
+ * as Android or iOS, so Mobile Apps read (0); and seven projects are built as
+ * both — "Web & Mobile" or "Mobile & Web" — which an exact match on "Web"
+ * threw away, leaving Web Projects at (3) out of 21.
+ *
+ * Reading the field for what it contains rather than matching it whole means
+ * a project built for both platforms now appears under both, which is the
+ * honest answer: it genuinely is both.
+ */
+const platformOf = (project) => (project?.platform || "").toLowerCase();
+
+const isMobile = (project) => /mobile|android|ios/.test(platformOf(project));
+
+/** A project with no platform recorded is treated as web, as it was before. */
+const isWeb = (project) => {
+  const p = platformOf(project);
+  return p === "" || /web/.test(p);
+};
+
+const matchesType = (project, type) => {
+  if (type === "mobile") return isMobile(project);
+  if (type === "web") return isWeb(project);
+  return true;
+};
 
 const Portfolio = () => {
   const seo = getSEO("portfolio");
@@ -150,12 +179,8 @@ const Portfolio = () => {
     let projects = allProjects;
 
     // Filter by project type (platform)
-    if (activeProjectType === "mobile") {
-      projects = projects.filter(
-        (p) => p.platform === "Android" || p.platform === "iOS"
-      );
-    } else if (activeProjectType === "web") {
-      projects = projects.filter((p) => p.platform === "Web");
+    if (activeProjectType !== "all") {
+      projects = projects.filter((p) => matchesType(p, activeProjectType));
     }
 
     // Filter by category
@@ -168,16 +193,12 @@ const Portfolio = () => {
     return projects;
   }, [allProjects, activeProjectType, selectedCategories]);
 
-  const getProjectCountByType = (type) => {
-    if (type === "all") return allProjects.length;
-    if (type === "mobile")
-      return allProjects.filter(
-        (p) => p.platform === "Android" || p.platform === "iOS"
-      ).length;
-    if (type === "web")
-      return allProjects.filter((p) => p.platform === "Web").length;
-    return 0;
-  };
+  // Counts come from the same predicate as the filtering, so a tab can never
+  // promise a number it then fails to show.
+  const getProjectCountByType = (type) =>
+    type === "all"
+      ? allProjects.length
+      : allProjects.filter((p) => matchesType(p, type)).length;
 
   const getCategoryData = (category) =>
     categoryIcons[category] || categoryIcons["default"];
@@ -360,12 +381,17 @@ const Portfolio = () => {
                       >
                         <div className="case-box style2 inner-style1 position-relative">
                           <div className="case-img global-img">
+                            {/* Phone mockup under Mobile Apps, laptop under
+                                Web Projects, and whatever the project files
+                                as its own under All — see artworkFor. */}
                             <img
                               src={
-                                project.image ||
+                                artworkFor(project, activeProjectType) ||
                                 "/assets/img/default-project.webp"
                               }
                               alt={project.title}
+                              loading="lazy"
+                              decoding="async"
                             />
                             <Link
                               to={`/portfolio/${formatCategoryForUrl(
