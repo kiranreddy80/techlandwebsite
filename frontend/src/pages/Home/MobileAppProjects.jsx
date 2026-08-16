@@ -154,15 +154,7 @@ const MobileAppProjects = () => {
         /* Extra vertical padding so the scaled-up centre device has room to
            grow without colliding with the heading or the controls. */
         .mp-swiper { overflow: visible !important; padding: 34px 0 26px; }
-        /* Perspective sits on the wrapper because that is the slides' direct
-           parent — on .mp-stage it would only apply to .mp-swiper and the
-           handsets would stay flat. preserve-3d keeps Swiper's own translate
-           on the wrapper from collapsing the depth of its children. */
-        .mp-swiper .swiper-wrapper {
-          align-items: center;
-          perspective: 1600px;
-          transform-style: preserve-3d;
-        }
+        .mp-swiper .swiper-wrapper { align-items: center; }
 
         /* ---- Depth ----
            The row used to render every handset identically: same transform,
@@ -174,8 +166,13 @@ const MobileAppProjects = () => {
 
            Now the centred phone stands forward of the row and the ones
            either side fall back behind it. */
+        /* Scale only, no translateZ. perspective-origin sits at the centre of
+           the whole slide track, which slides as it scrolls, so a Z offset
+           pushed the left and right neighbours by different amounts and the
+           gaps either side of the centred phone came out uneven. Scaling from
+           each slide's own centre is symmetric by definition. */
         .mp-swiper .swiper-slide {
-          transform: scale(0.8) translateZ(-160px);
+          transform: scale(0.8);
           opacity: 0.45;
           filter: saturate(0.7);
           transition:
@@ -186,13 +183,13 @@ const MobileAppProjects = () => {
         }
         .mp-swiper .swiper-slide-prev,
         .mp-swiper .swiper-slide-next {
-          transform: scale(0.9) translateZ(-80px);
+          transform: scale(0.9);
           opacity: 0.8;
           filter: saturate(0.9);
           z-index: 2;
         }
         .mp-swiper .swiper-slide-active {
-          transform: scale(1.08) translateZ(0);
+          transform: scale(1.08);
           opacity: 1;
           filter: none;
           z-index: 3;

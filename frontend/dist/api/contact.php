@@ -17,27 +17,18 @@
 
 // ---------------------------------------------------------------- config
 
-/** Where enquiries are delivered. */
-const ADMIN_EMAIL = 'info@techlanditsolutions.com';
-
 /**
- * The From: address. This MUST be a mailbox that really exists.
- *
- * It was noreply@ and nothing arrived. The domain's MX points at
- * SMTP.GOOGLE.com, so mail is hosted on Google Workspace — and Google is
- * strict about messages claiming to come from an address on a domain it hosts
- * but cannot find. noreply@ was never created, so it had nowhere to belong.
- *
- * info@ is a real mailbox, and the domain's SPF authorises Hostinger to send
- * on its behalf, so this passes the checks that were failing. Sending from
- * info@ to info@ is normal for a contact form.
- *
- * Sending "From: <the visitor's gmail>" would be the other classic mistake:
- * this domain has no authority to send as gmail.com. The visitor goes in
- * Reply-To instead, so hitting reply still answers them directly.
+ * Settings live in mail-config.php so the only file that ever needs editing
+ * on the server is that one. Nothing here has to change to switch the site
+ * from PHP mail() to authenticated SMTP.
  */
-const FROM_EMAIL = 'info@techlanditsolutions.com';
-const FROM_NAME  = 'Techland Website';
+$cfg = require __DIR__ . '/mail-config.php';
+
+const FROM_NAME_FALLBACK = 'Techland Website';
+
+$ADMIN_EMAIL = $cfg['TO_EMAIL'];
+$FROM_EMAIL  = $cfg['FROM_EMAIL'];
+$FROM_NAME   = $cfg['FROM_NAME'] ?? FROM_NAME_FALLBACK;
 
 // ----------------------------------------------------------------- setup
 
@@ -125,7 +116,7 @@ $mailSubject = 'New Inquiry: ' . ($subject === '' ? 'No Subject' : $subject) . '
 $headers = implode("\r\n", [
     'MIME-Version: 1.0',
     'Content-Type: text/html; charset=UTF-8',
-    'From: ' . FROM_NAME . ' <' . FROM_EMAIL . '>',
+    'From: ' . $FROM_NAME . ' <' . $FROM_EMAIL . '>',
     'Reply-To: ' . $name . ' <' . $email . '>',
     'X-Mailer: PHP/' . phpversion(),
 ]);
@@ -134,13 +125,27 @@ $headers = implode("\r\n", [
 
 // The fifth argument sets the envelope sender, which several shared hosts
 // require before they will accept the message for delivery.
-$sent = @mail(ADMIN_EMAIL, $mailSubject, $html, $headers, '-f' . FROM_EMAIL);
+// Authenticated SMTP when credentials are configured, mail() otherwise.
+//
+// This matters more than it looks. mail() hands the message to a local binary
+// and returns true, which says nothing about delivery — the form could report
+// success while every enquiry was being dropped, which is exactly what was
+// happening. SMTP surfaces the mail server's own reply, so a rejection becomes
+// a visible error instead of silence.
+$smtpError = null;
+if (!empty($cfg['SMTP_USER']) && !empty($cfg['SMTP_PASS'])) {
+    require_once __DIR__ . '/smtp.php';
+    $sent = smtp_send($cfg, $ADMIN_EMAIL, $mailSubject, $html, $email, $smtpError);
+    if (!$sent) error_log('[contact] SMTP failed: ' . $smtpError);
+} else {
+    $sent = @mail($ADMIN_EMAIL, $mailSubject, $html, $headers, '-f' . $FROM_EMAIL);
+}
 
 if (!$sent) {
     // Never report success for mail that did not leave. The form shows its
     // error state and the visitor is told to call instead, rather than being
     // promised a reply to an enquiry nobody received.
-    error_log('[contact] mail() failed for ' . $email);
+    error_log('[contact] send failed for ' . $email . ($smtpError ? ' — ' . $smtpError : ''));
     reply(502, [
         'success' => false,
         'message' => 'We could not send your message right now. Please call or WhatsApp us instead.',

@@ -13,10 +13,7 @@ const showcase = [
   { src: "/assets/media/Assets/Projectimg/meato.png",         alt: "MeatO — food delivery mobile app built by Techland IT Solutions" },
   { src: "/assets/media/Assets/Projectimg/templecityweb.png", alt: "Temple City — website built by Techland IT Solutions" },
   { src: "/assets/media/Assets/Projectimg/sapid.png",         alt: "SAPID — hospitality platform built by Techland IT Solutions" },
-  { src: "/assets/media/Assets/Projectimg/savaari.png",       alt: "Savaari — travel platform built by Techland IT Solutions" },
-  { src: "/assets/media/Assets/Projectimg/findHR.png",        alt: "FindHR — recruitment platform built by Techland IT Solutions" },
   { src: "/assets/media/Assets/Projectimg/nudeal.png",        alt: "Nudeal — marketplace mobile app built by Techland IT Solutions" },
-  { src: "/assets/media/Assets/Projectimg/primepantry.png",   alt: "Prime Pantry — grocery app built by Techland IT Solutions" },
 ];
 
 const ROTATE_MS = 2000;

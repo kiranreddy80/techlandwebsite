@@ -43,6 +43,10 @@ const ZenfooWeb = "/assets/media/Assets/Projectimg/Zenfoo_Web.webp";
 const ViswamWeb = "/assets/media/Assets/Projectimg/Viswam_Web.webp";
 const TrustlabWeb = "/assets/media/Assets/Projectimg/Trustlab_Web.webp";
 const BestSeedsWeb = "/assets/media/Assets/Projectimg/BestSeeds_Web.webp";
+const FoodMitraPhone = "/assets/media/Assets/Projectimg/FoodMitra_Main.webp";
+const FoodMitraWeb = "/assets/media/Assets/Projectimg/FoodMitra_Web.webp";
+const ScrappPhone = "/assets/media/Assets/Projectimg/Scrapp_Main.webp";
+const ScrappWeb = "/assets/media/Assets/Projectimg/Scrapp_Web.webp";
 const CashExPhone = "/assets/media/Assets/Projectimg/CashEx_Main.webp";
 const ZaapGoPhone = "/assets/media/Assets/Projectimg/ZaapGo_Phone.webp";
 const MyDealPhone = "/assets/media/Assets/Projectimg/MyDeal_Main.webp";
@@ -78,6 +82,8 @@ const Botiimg = "/assets/media/Assets/Projectimg/Boutique_View.webp";
  */
 export const platformArtwork = {
   NUDEAL: { mobile: NudealPhone, web: nudealweb },
+  "Food Mithra": { mobile: FoodMitraPhone, web: FoodMitraWeb },
+  Scrapp: { mobile: ScrappPhone, web: ScrappWeb },
   ZENFOO: { web: ZenfooWeb },
   "MY DEAL": { mobile: MyDealPhone, web: MyDealWeb },
   "GO CAR CLEAN": { mobile: GoCarCleanPhone, web: GoCarCleanWeb },
@@ -112,7 +118,7 @@ export const categories = {
       title: "NUDEAL",
       description:
         "A comprehensive multi-vendor marketplace that connects customers with a wide range of sellers.",
-      link: "https://nudeal.in",
+      link: "https://play.google.com/store/apps/details?id=com.nudeal.user&hl=en_IN",
       technologies_used: [
         "Flutter",
         "Firebase",
@@ -205,11 +211,49 @@ export const categories = {
   ],
   "Food & Delivery": [
     {
+      id: 5,
+      title: "Food Mithra",
+      description:
+        "A food delivery platform connecting customers with nearby restaurants for fast doorstep delivery.",
+      link: "",
+      technologies_used: ["React Native", "Node.js", "MongoDB", "Google Maps API", "Payment Gateway"],
+      status: "Live",
+      platform: "Web & Mobile",
+      image: FoodMitraPhone,
+      details_image: FoodMitraWeb,
+      project_overview:
+        "Food Mithra is a food ordering and delivery platform built for both web and mobile. Customers browse nearby restaurants, place orders and follow them through to the door, while partner restaurants manage menus and incoming orders from the same system.",
+      features: [
+        "Restaurant discovery with menus and pricing",
+        "Live order tracking from kitchen to door",
+        "Multiple payment options at checkout",
+        "Restaurant dashboard for menus and orders",
+        "Delivery partner assignment and routing",
+      ],
+      timeline: {
+        "Research & Planning": "2 weeks",
+        "UI/UX Design": "3 weeks",
+        Development: "12 weeks",
+        "Testing & QA": "2 weeks",
+        Deployment: "1 week",
+      },
+      challenges: [
+        {
+          problem: "Keeping order status accurate across customer, restaurant and delivery partner at once",
+          solution: "Built a single order state shared in real time, so every party sees the same status without refreshing",
+        },
+        {
+          problem: "Routing orders to the nearest available delivery partner at busy times",
+          solution: "Added location-based assignment that weighs distance and current load before allocating an order",
+        },
+      ],
+    },
+    {
       id: 1,
       title: "Cashex Bitebox",
       description:
         "India's first food pre-ordering platform designed specifically for college campuses.",
-      link: "",
+      link: "https://apps.apple.com/in/app/cashex-bite-box/id6742189605",
       technologies_used: [
         "React",
         "Node.js",
@@ -350,7 +394,7 @@ export const categories = {
       title: "SAPID",
       description:
         "A flagship hospitality brand in Hyderabad with 11+ outlets across Telangana.",
-      link: "https://sapid.co.in",
+      link: "",
       technologies_used: [
         "Flutter",
         "Firebase",
@@ -401,7 +445,7 @@ export const categories = {
       title: "ZENFOO",
       description:
         "A multi-vendor grocery, vegetable, and food delivery platform operating in Andhra Pradesh.",
-      link: "https://zenfoo.in",
+      link: "https://play.google.com/store/apps/details?id=com.zenfoo.customer",
       technologies_used: [
         "React",
         "React Native",
@@ -501,7 +545,7 @@ export const categories = {
       title: "Healthcare Solutions",
       description:
         "Multiple digital healthcare platforms developed for a PAN-India diagnostic company.",
-      link: "",
+      link: "https://mytrustlab.com/",
       technologies_used: [
         "React",
         "React Native",
@@ -647,6 +691,44 @@ export const categories = {
     },
   ],
   Services: [
+    {
+      id: 4,
+      title: "Scrapp",
+      description:
+        "A waste collection and recycling platform for scheduling pickups of household, e-waste and bulk items.",
+      link: "",
+      technologies_used: ["React Native", "Node.js", "MongoDB", "Google Maps API", "REST API"],
+      status: "Live",
+      platform: "Web & Mobile",
+      image: ScrappPhone,
+      details_image: ScrappWeb,
+      project_overview:
+        "Scrapp is a waste collection service built for web and mobile. Households book a pickup for recyclable, electronic or bulk waste, track the collection vehicle on its way, and see what happens to the material afterwards.",
+      features: [
+        "Pickup scheduling by waste type",
+        "Household, e-waste and bulk item categories",
+        "Live tracking of the collection vehicle",
+        "Recycling service listings and rates",
+        "Pickup history and collection records",
+      ],
+      timeline: {
+        "Research & Planning": "2 weeks",
+        "UI/UX Design": "3 weeks",
+        Development: "10 weeks",
+        "Testing & QA": "2 weeks",
+        Deployment: "1 week",
+      },
+      challenges: [
+        {
+          problem: "Collection routes changing as new pickups are booked through the day",
+          solution: "Routes are recalculated as bookings arrive, so a vehicle already out can absorb nearby requests",
+        },
+        {
+          problem: "Different waste types needing different handling and vehicles",
+          solution: "Each category carries its own handling rules, and only suitable vehicles are offered for that booking",
+        },
+      ],
+    },
     {
       id: 1,
       title: "GO CAR CLEAN",
